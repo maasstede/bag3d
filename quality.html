@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3D BAG quality expectations &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The bag3d application" href="software.html" />
+    <link rel="prev" title="3D BAG" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3D BAG quality expectations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#completeness">Completeness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#correctness">Correctness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#consistency">Consistency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coherence">Coherence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accountability">Accountability</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#d-bag-quality-testing">3D BAG quality testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#comparison-with-the-ahn-0-5m-raster">Comparison with the AHN 0.5m raster</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>3D BAG quality expectations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/quality.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="d-bag-quality-expectations">
+<h1>3D BAG quality expectations<a class="headerlink" href="#d-bag-quality-expectations" title="Permalink to this headline">¶</a></h1>
+<p>These quality expectations describe the 3D-part of the 3D BAG. The quality of the BAG itself is not discussed here.</p>
+<div class="section" id="completeness">
+<h2>Completeness<a class="headerlink" href="#completeness" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Every BAG building footprint polygon should have a height assigned to it wherever AHN has data.</li>
+<li>The date of AHN (height information) is assigned to every footprint. This includes the AHN version.</li>
+<li>The binary attribute <cite>flat_roof</cite> is assigned to every footprint with height information.</li>
+</ul>
+</div>
+<div class="section" id="correctness">
+<h2>Correctness<a class="headerlink" href="#correctness" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Which part of the roof does <cite>roof-0.00</cite>, <cite>roof-0.50</cite> and <cite>roof-0.99</cite> relate to in the real building?</li>
+<li>The newest avialable AHN is used for every footprint.</li>
+</ul>
+</div>
+<div class="section" id="consistency">
+<h2>Consistency<a class="headerlink" href="#consistency" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="coherence">
+<h2>Coherence<a class="headerlink" href="#coherence" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="accountability">
+<h2>Accountability<a class="headerlink" href="#accountability" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The source of BAG and AHN is clearly stated.</li>
+<li>Logging into the <cite>bagactueel.bag3d_log</cite> table.</li>
+<li>Data quality testing summary into the <cite>bagactueel.bag3d_info</cite> table.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="d-bag-quality-testing">
+<h1>3D BAG quality testing<a class="headerlink" href="#d-bag-quality-testing" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>randomly sample 1-5% of buildings, take the AHN raster, compute the height percentiles and compare those to the 3D BAG</li>
+</ul>
+<p>Because I will remove the tile-tile intersection so that when complete tiles
+are provided as input extent, the 9 neighbouring tiles won’t get dragged in
+the computation:</p>
+<ul class="simple">
+<li>randomly sample 1-5% buildings that intersect the borders of the tile polygons and perform the same percentile comparison as above</li>
+</ul>
+<div class="section" id="comparison-with-the-ahn-0-5m-raster">
+<h2>Comparison with the AHN 0.5m raster<a class="headerlink" href="#comparison-with-the-ahn-0-5m-raster" title="Permalink to this headline">¶</a></h2>
+<p>So, use rasterstats library to compute zonal statistics from the AHN raster. In this case a zone is a single building footprint and the statistics are all the roof-height percentiles.</p>
+<ol class="arabic simple" start="0">
+<li>Download the AHN3 0.5m raster and the AHN2 0.5m raster (only for those tiles where AHN3 is not available)</li>
+</ol>
+<p>wget -nc <a class="reference external" href="https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_05m_dsm/R_37FZ1.ZIP">https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_05m_dsm/R_37FZ1.ZIP</a> -O tile &amp;&amp; unzip -o tile &amp;&amp; rm tile
+wget -nc <a class="reference external" href="http://geodata.nationaalgeoregister.nl/ahn2/extract/ahn2_05m_ruw/r37hz1.tif.zip">http://geodata.nationaalgeoregister.nl/ahn2/extract/ahn2_05m_ruw/r37hz1.tif.zip</a> -O tile &amp;&amp; unzip -o tile &amp;&amp; rm tile</p>
+<ol class="arabic simple">
+<li>Randomly sample 1% of the 3D BAG</li>
+<li>Get the geometry from postgres into python as WKB (or WKT?)</li>
+<li>Also get the tile ID for each geometry</li>
+<li>Create an index of tile IDs and raster files</li>
+</ol>
+<p>src = [wkb1, wkb2, wkb3, …]
+zs = zonal_stats(src, ‘tests/data/slope.tif’)</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="software.html" class="btn btn-neutral float-right" title="The bag3d application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="3D BAG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

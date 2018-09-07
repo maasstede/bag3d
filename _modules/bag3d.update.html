@@ -1,0 +1,492 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.update package &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>bag3d.update package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_modules/bag3d.update.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bag3d-update-package">
+<h1>bag3d.update package<a class="headerlink" href="#bag3d-update-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bag3d.update.ahn">
+<span id="bag3d-update-ahn-module"></span><h2>bag3d.update.ahn module<a class="headerlink" href="#module-bag3d.update.ahn" title="Permalink to this headline">¶</a></h2>
+<p>Update the AHN files and tile index</p>
+<dl class="function">
+<dt id="bag3d.update.ahn.download">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">download</code><span class="sig-paren">(</span><em>ahn3_dir</em>, <em>ahn2_dir</em>, <em>tile_index_file</em>, <em>ahn3_file_pat</em>, <em>ahn2_file_pat</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the AHN3 files in the provided folder</p>
+<ol class="arabic simple">
+<li>Downloads the latest AHN3 index (bladindex) to the local file system</li>
+<li>Downloads all AHN3 tiles that are not in the provided directory and checks them for error with lasinfo (without parsing the points).</li>
+<li>Appends the ‘file creation date’ attribute of the LAZ file to the AHN index.</li>
+<li>If an AHN3 file is not available, marks the tile as AHN2 and add the date of the AHN2 file.</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ahn3_dir</strong> (<em>path to the directory for the AHN3 files</em>) – </li>
+<li><strong>ahn2_dir</strong> (<em>path to the directory for the AHN2 files</em>) – </li>
+<li><strong>tile_index_file</strong> (<em>path for the AHN tile index</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.ahn.download_ahn_index">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">download_ahn_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#download_ahn_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.download_ahn_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the newest AHN3 units/index file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.ahn.download_raster">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">download_raster</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>ahn2_rast_dir</em>, <em>ahn3_rast_dir</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#download_raster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.download_raster" title="Permalink to this definition">¶</a></dt>
+<dd><p>wget <a class="reference external" href="https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_05m_dsm/R_37HN1.ZIP">https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_05m_dsm/R_37HN1.ZIP</a> -O tile &amp;&amp; unzip -o tile &amp;&amp; rm tile</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.ahn.downloader">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">downloader</code><span class="sig-paren">(</span><em>tile_list</em>, <em>url</em>, <em>dir_out</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#downloader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.downloader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.ahn.get_file_date">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">get_file_date</code><span class="sig-paren">(</span><em>ahn_dir</em>, <em>ahn_pat</em>, <em>t</em>, <em>f_date_pat</em>, <em>corruptedfiles</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#get_file_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.get_file_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the file creation date from a las file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.ahn.rast_file_idx">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">rast_file_idx</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>ahn2_rast_dir</em>, <em>ahn3_rast_dir</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#rast_file_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.rast_file_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an index of tiles and AHN raster files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ahn2_rast_dir</strong> (<em>str</em>) – Path to the directory of the AHN2 raster files</li>
+<li><strong>ahn3_rast_dir</strong> (<em>str</em>) – Path to the directory of the AHN3 raster files</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">{tile ID : path to raster file}</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.ahn.update_json_id">
+<code class="descclassname">bag3d.update.ahn.</code><code class="descname">update_json_id</code><span class="sig-paren">(</span><em>json</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/ahn.html#update_json_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.ahn.update_json_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a GeoJSON tile index’s ID field</p>
+<p>Overwrites or adds the “id” field as sequential integer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>json</strong> (<em>a parsed GeoJSON</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">The modified GeoJSON</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.update.bag">
+<span id="bag3d-update-bag-module"></span><h2>bag3d.update.bag module<a class="headerlink" href="#module-bag3d.update.bag" title="Permalink to this headline">¶</a></h2>
+<p>Update the BAG database (2D) and tile index</p>
+<dl class="function">
+<dt id="bag3d.update.bag.download_BAG">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">download_BAG</code><span class="sig-paren">(</span><em>url</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#download_BAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.download_BAG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the latest BAG extract</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<em>str</em>) – URL to the BAG extract eg <a class="reference external" href="http://data.nlextract.nl/bag/postgis/">http://data.nlextract.nl/bag/postgis/</a></li>
+<li><strong>doexec</strong> (<em>bool</em>) – Passed to <a class="reference internal" href="#bag3d.update.bag.run_subprocess" title="bag3d.update.bag.run_subprocess"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_subprocess()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.get_latest_BAG">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">get_latest_BAG</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#get_latest_BAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.get_latest_BAG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the date of the latest BAG extract from NLExtract</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<em>str</em>) – URL to the BAG extract eg <a class="reference external" href="http://data.nlextract.nl/bag/postgis/">http://data.nlextract.nl/bag/postgis/</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Date of the latest available BAG extract</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">datetime.date</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.grant_access">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">grant_access</code><span class="sig-paren">(</span><em>conn</em>, <em>user</em>, <em>tile_schema</em>, <em>tile_index_schema</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#grant_access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.grant_access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grants all the necessary privileges for a user for operating on the 3DBAG database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>user</strong> (<em>str</em>) – User to grant the privileges to</li>
+<li><strong>tile_schema</strong> (<em>str</em>) – Schema with the footprint tiles, in config: ‘input_polygons:tile_schema’</li>
+<li><strong>tile_index_schema</strong> (<em>str</em>) – Schema with the footprint tile index, in config: ‘tile_index:polygons:schema’</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.import_index">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">import_index</code><span class="sig-paren">(</span><em>idx</em>, <em>dbname</em>, <em>tile_schema</em>, <em>host</em>, <em>port</em>, <em>user</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#import_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.import_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import the tile index into the database</p>
+<p>Calls ogr2ogr to import a tile index with EPSG:28992 into the tile_index
+schema.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.restore_BAG">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">restore_BAG</code><span class="sig-paren">(</span><em>dbase</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#restore_BAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.restore_BAG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restores the BAG extract into a database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dbase</strong> (<em>dict</em>) – Dict containing the database connection parameters from the config file</li>
+<li><strong>doexec</strong> (<em>bool</em>) – Passed to <a class="reference internal" href="#bag3d.update.bag.run_subprocess" title="bag3d.update.bag.run_subprocess"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_subprocess()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.run_pg_restore">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">run_pg_restore</code><span class="sig-paren">(</span><em>dbase</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#run_pg_restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.run_pg_restore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the pg_restore process</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dbase</strong> (<em>dict</em>) – Dict containing the database connection parameters from the config file</li>
+<li><strong>doexec</strong> (<em>bool</em>) – Passed to <a class="reference internal" href="#bag3d.update.bag.run_subprocess" title="bag3d.update.bag.run_subprocess"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_subprocess()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.run_subprocess">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">run_subprocess</code><span class="sig-paren">(</span><em>command</em>, <em>shell=False</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#run_subprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.run_subprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subprocess runner</p>
+<p>If subrocess returns non-zero exit code, STDERR is sent to the logger.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>command</strong> (<em>list of str</em>) – Command to pass to subprocess.run(). Eg [‘wget’, ‘-q’, ‘-r’, dl_url]</li>
+<li><strong>shell</strong> (<em>bool</em>) – Passed to subprocess.run()</li>
+<li><strong>doexec</strong> (<em>bool</em>) – Execute the subprocess or just print out the concatenated command</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.update.bag.setup_BAG">
+<code class="descclassname">bag3d.update.bag.</code><code class="descname">setup_BAG</code><span class="sig-paren">(</span><em>conn</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/update/bag.html#setup_BAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.update.bag.setup_BAG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares the BAG database</p>
+<p>Creates the <em>public.bag_updates</em> table and <em>tile_index</em> schema.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>doexec</strong> (<em>bool</em>) – Passed to <a class="reference internal" href="#bag3d.update.bag.run_subprocess" title="bag3d.update.bag.run_subprocess"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_subprocess()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.update">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bag3d.update" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

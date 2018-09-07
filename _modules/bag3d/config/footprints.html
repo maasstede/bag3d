@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.config.footprints &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.config.footprints</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.config.footprints</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Batch create views for the 2D(BAG) tiles.</span>
+
+<span class="sd">The module helps you to create tiles in a BAG (https://www.kadaster.nl/wat-is-de-bag)</span>
+<span class="sd">database. These tiles are then used by batch3dfier.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="k">import</span> <span class="n">sql</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;config.footprints&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="update_tile_index"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.footprints.update_tile_index">[docs]</a><span class="k">def</span> <span class="nf">update_tile_index</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">fields_index</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update the tile index to include the lower/left boundary of each polygon.</span>
+
+<span class="sd">    The function is mainly relevant for the tile index of the footprints.</span>
+<span class="sd">    The tile edges are then used for checking centroid containment in a tile polygon.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">    table_index : list of str</span>
+<span class="sd">        (schema, table) that contains the tile index polygons.</span>
+<span class="sd">    fields_index: list of str</span>
+<span class="sd">        [ID, geometry, unit] field names of the ID, geometry, tile unit name fields in table_index.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">table_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">table_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">id_col</span> <span class="o">=</span> <span class="n">fields_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">geom_col</span> <span class="o">=</span> <span class="n">fields_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">schema_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+    <span class="n">geom_col_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">geom_col</span><span class="p">)</span>
+    <span class="n">id_col_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">id_col</span><span class="p">)</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    ALTER TABLE </span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">    ADD COLUMN IF NOT EXISTS geom_border geometry;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema_q</span><span class="p">,</span> <span class="n">table_q</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    UPDATE</span>
+<span class="s2">        </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">    SET</span>
+<span class="s2">        geom_border = b.geom::geometry(linestring,28992)</span>
+<span class="s2">    FROM</span>
+<span class="s2">        (</span>
+<span class="s2">            SELECT</span>
+<span class="s2">                </span><span class="si">{id_col}</span><span class="s2">,</span>
+<span class="s2">                st_setSRID(</span>
+<span class="s2">                    st_makeline(</span>
+<span class="s2">                        ARRAY[st_makepoint(</span>
+<span class="s2">                            st_xmax(</span><span class="si">{geom_col}</span><span class="s2">),</span>
+<span class="s2">                            st_ymin(</span><span class="si">{geom_col}</span><span class="s2">)</span>
+<span class="s2">                        ),</span>
+<span class="s2">                        st_makepoint(</span>
+<span class="s2">                            st_xmin(</span><span class="si">{geom_col}</span><span class="s2">),</span>
+<span class="s2">                            st_ymin(</span><span class="si">{geom_col}</span><span class="s2">)</span>
+<span class="s2">                        ),</span>
+<span class="s2">                        st_makepoint(</span>
+<span class="s2">                            st_xmin(</span><span class="si">{geom_col}</span><span class="s2">),</span>
+<span class="s2">                            st_ymax(</span><span class="si">{geom_col}</span><span class="s2">)</span>
+<span class="s2">                        ) ]</span>
+<span class="s2">                    ),</span>
+<span class="s2">                    28992</span>
+<span class="s2">                ) AS geom</span>
+<span class="s2">            FROM</span>
+<span class="s2">                </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">        ) b</span>
+<span class="s2">    WHERE</span>
+<span class="s2">        </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2">.</span><span class="si">{id_col}</span><span class="s2"> = b.</span><span class="si">{id_col}</span><span class="s2">;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span>
+            <span class="n">table</span><span class="o">=</span><span class="n">table_q</span><span class="p">,</span>
+            <span class="n">geom_col</span><span class="o">=</span><span class="n">geom_col_q</span><span class="p">,</span>
+            <span class="n">id_col</span><span class="o">=</span><span class="n">id_col_q</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="n">sql_query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE INDEX IF NOT EXISTS </span><span class="si">{idx_name}</span><span class="s2"> ON </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"> USING gist (geom_border);</span>
+<span class="s2">    SELECT populate_geometry_columns(</span><span class="si">{name}</span><span class="s2">::regclass);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx_name</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">geom_col</span> <span class="o">+</span> <span class="s2">&quot;_border_idx&quot;</span><span class="p">),</span>
+            <span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span>
+            <span class="n">table</span><span class="o">=</span><span class="n">table_q</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">schema</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">table</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">vacuum</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_centroids"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.footprints.create_centroids">[docs]</a><span class="k">def</span> <span class="nf">create_centroids</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_centroid</span><span class="p">,</span> <span class="n">table_footprint</span><span class="p">,</span> <span class="n">fields_footprint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a table of footprint centroids.</span>
+
+<span class="sd">    The table_centroid is then used by bagtiler().</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">    table_centroid : list of str</span>
+<span class="sd">        [schema, table] for the new relation that contains the footprint centroids.</span>
+<span class="sd">    table_footprint : list of str</span>
+<span class="sd">        [schema, table] of the footprints (e.g. building footprints) that will be extruded.</span>
+<span class="sd">    fields_footprint : list of str</span>
+<span class="sd">        [ID, geometry] field names of the ID geometry fields in table_footprint.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema_ctr</span> <span class="o">=</span> <span class="n">table_centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">table_ctr</span> <span class="o">=</span> <span class="n">table_centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">schema_poly</span> <span class="o">=</span> <span class="n">table_footprint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">table_poly</span> <span class="o">=</span> <span class="n">table_footprint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">id_col</span> <span class="o">=</span> <span class="n">fields_footprint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">geom_col</span> <span class="o">=</span> <span class="n">fields_footprint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">schema_ctr_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema_ctr</span><span class="p">)</span>
+    <span class="n">table_ctr_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_ctr</span><span class="p">)</span>
+    <span class="n">schema_poly_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema_poly</span><span class="p">)</span>
+    <span class="n">table_poly_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_poly</span><span class="p">)</span>
+    <span class="n">geom_col_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">geom_col</span><span class="p">)</span>
+    <span class="n">id_col_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">id_col</span><span class="p">)</span>
+
+    <span class="n">sql_query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE TABLE IF NOT EXISTS </span><span class="si">{schema_ctr}</span><span class="s2">.</span><span class="si">{table_ctr}</span><span class="s2"> AS</span>
+<span class="s2">        SELECT </span><span class="si">{id_col}</span><span class="s2">, st_centroid(</span><span class="si">{geom_col}</span><span class="s2">)::geometry(point, 28992) AS geom</span>
+<span class="s2">        FROM </span><span class="si">{schema_poly}</span><span class="s2">.</span><span class="si">{table_poly}</span><span class="s2">;</span>
+<span class="s2">    </span>
+<span class="s2">    SELECT populate_geometry_columns(</span><span class="si">{sch_tbl}</span><span class="s2">::regclass);</span>
+<span class="s2">    </span>
+<span class="s2">    CREATE</span>
+<span class="s2">        INDEX IF NOT EXISTS </span><span class="si">{tbl_idx}</span><span class="s2"> ON</span>
+<span class="s2">        </span><span class="si">{schema_ctr}</span><span class="s2">.</span><span class="si">{table_ctr}</span><span class="s2"></span>
+<span class="s2">            USING gist(geom);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema_ctr</span><span class="o">=</span><span class="n">schema_ctr_q</span><span class="p">,</span>
+            <span class="n">table_ctr</span><span class="o">=</span><span class="n">table_ctr_q</span><span class="p">,</span>
+            <span class="n">id_col</span><span class="o">=</span><span class="n">id_col_q</span><span class="p">,</span>
+            <span class="n">geom_col</span><span class="o">=</span><span class="n">geom_col_q</span><span class="p">,</span>
+            <span class="n">schema_poly</span><span class="o">=</span><span class="n">schema_poly_q</span><span class="p">,</span>
+            <span class="n">table_poly</span><span class="o">=</span><span class="n">table_poly_q</span><span class="p">,</span>
+            <span class="n">sch_tbl</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">schema_ctr</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">table_ctr</span><span class="p">),</span>
+            <span class="n">tbl_idx</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_ctr</span> <span class="o">+</span> <span class="s1">&#39;_geom_idx&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">vacuum</span><span class="p">(</span><span class="n">schema_ctr</span><span class="p">,</span> <span class="n">table_ctr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_views"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.footprints.create_views">[docs]</a><span class="k">def</span> <span class="nf">create_views</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">fields_index</span><span class="p">,</span> <span class="n">table_centroid</span><span class="p">,</span>
+                 <span class="n">fields_centroid</span><span class="p">,</span> <span class="n">table_footprint</span><span class="p">,</span> <span class="n">fields_footprint</span><span class="p">,</span>
+                 <span class="n">prefix_tiles</span><span class="o">=</span><span class="s1">&#39;t_&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates PostgreSQL Views for the footprint tiles.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">    schema_tiles : str</span>
+<span class="sd">        Name of the schema where to create the footprint tiles.</span>
+<span class="sd">    table_index : list of str</span>
+<span class="sd">        [schema, table] of the tile index.</span>
+<span class="sd">    fields_index : list of str</span>
+<span class="sd">        [ID, geometry, unit]</span>
+<span class="sd">        ID: Name of the ID field.</span>
+<span class="sd">        geometry: Name of the geometry field.</span>
+<span class="sd">        unit: Name of the field in table_index that contains the index unit names.</span>
+<span class="sd">        These values are used for the tile names in schema_tiles.</span>
+<span class="sd">    table_centroid : list of str</span>
+<span class="sd">        [schema, table] of the footprint centroids.</span>
+<span class="sd">    fields_centroid : list of str</span>
+<span class="sd">        [ID, geometry]</span>
+<span class="sd">        Name of the ID field in table_centroid that can be joined on table_footprint.</span>
+<span class="sd">        There must be an identical value in fields_footprint.</span>
+<span class="sd">        Name of the geometry field.</span>
+<span class="sd">    table_footprint : list of str</span>
+<span class="sd">        [schema, table] of the footprints (e.g. building footprints) that will be extruded.</span>
+<span class="sd">    fields_footprint : list of str</span>
+<span class="sd">        [ID, geometry, ...]</span>
+<span class="sd">        Names of the fields that should be selected into the View. Must contain</span>
+<span class="sd">        at least an ID and a geometry field, where ID is the field that can be joined on</span>
+<span class="sd">        table_centroid.</span>
+<span class="sd">    prefix_tiles : str or None</span>
+<span class="sd">        Prefix to prepend to the view names. If None, the views are named as</span>
+<span class="sd">        the values in fields_index.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema_tiles_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema_tiles</span><span class="p">)</span>
+
+    <span class="n">schema_idx_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">table_idx_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">field_idx_unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">field_idx_geom_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">schema_ctr_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">table_ctr_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">field_ctr_id</span> <span class="o">=</span> <span class="n">fields_centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">field_ctr_id_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">field_ctr_id</span><span class="p">)</span>
+    <span class="n">field_ctr_geom_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">table_poly</span> <span class="o">=</span> <span class="n">table_footprint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">schema_poly_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_footprint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">table_poly_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_poly</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fields_footprint</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields_footprint</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span>\
+        <span class="s2">&quot;You must provide at least two fields (e.g. id, geometry)&quot;</span>
+    <span class="k">assert</span> <span class="n">field_ctr_id</span> <span class="ow">in</span> <span class="n">fields_footprint</span><span class="p">,</span>\
+        <span class="s2">&quot;There must be a join field for table_centroid and table_footprint.&quot;</span>
+    <span class="c1"># prepare SELECT FROM table_footprint</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields_footprint</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_poly</span><span class="p">),</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">f</span><span class="p">)]))</span>
+    <span class="n">sql_fields_footprint</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="n">field_poly_id_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_footprint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="c1">#     print(sql_fields_footprint.as_string(dbs.conn))</span>
+
+    <span class="c1"># Create schema to store the tiles</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;CREATE SCHEMA IF NOT EXISTS </span><span class="si">{}</span><span class="s2">;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema_tiles_q</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="c1"># Get footprint index unit names</span>
+    <span class="n">tiles</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;SELECT </span><span class="si">{}</span><span class="s2"> FROM </span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">field_idx_unit_q</span><span class="p">,</span><span class="n">schema_idx_q</span><span class="p">,</span><span class="n">table_idx_q</span><span class="p">))</span>
+    <span class="n">tiles</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">prefix_tiles</span><span class="p">:</span>
+        <span class="n">prefix_tiles</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefix_tiles</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="c1"># Create a BAG tile with equivalent area of an AHN tile</span>
+    <span class="n">queries</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Composed</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+        <span class="c1"># !!! the &#39;t_&#39; prefix is hard-coded in config.call3dfier() !!!</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">prefix_tiles</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">tile</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE OR REPLACE VIEW </span><span class="si">{schema_tiles}</span><span class="s2">.</span><span class="si">{view}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT</span>
+<span class="s2">        </span><span class="si">{fields_poly}</span><span class="s2">,</span>
+<span class="s2">        </span><span class="si">{table_idx}</span><span class="s2">.</span><span class="si">{field_idx}</span><span class="s2"></span>
+<span class="s2">    FROM</span>
+<span class="s2">        </span><span class="si">{schema_poly}</span><span class="s2">.</span><span class="si">{table_poly}</span><span class="s2"></span>
+<span class="s2">    INNER JOIN </span><span class="si">{schema_ctr}</span><span class="s2">.</span><span class="si">{table_ctr}</span><span class="s2"> ON</span>
+<span class="s2">        </span><span class="si">{table_poly}</span><span class="s2">.</span><span class="si">{field_poly_id}</span><span class="s2"> = </span><span class="si">{table_ctr}</span><span class="s2">.</span><span class="si">{field_ctr_id}</span><span class="s2">,</span>
+<span class="s2">        </span><span class="si">{schema_idx}</span><span class="s2">.</span><span class="si">{table_idx}</span><span class="s2"></span>
+<span class="s2">    WHERE</span>
+<span class="s2">        </span><span class="si">{table_idx}</span><span class="s2">.</span><span class="si">{field_idx}</span><span class="s2"> = </span><span class="si">{tile}</span><span class="s2"></span>
+<span class="s2">        AND(</span>
+<span class="s2">            st_containsproperly(</span>
+<span class="s2">                </span><span class="si">{table_idx}</span><span class="s2">.</span><span class="si">{field_idx_geom}</span><span class="s2">,</span>
+<span class="s2">                </span><span class="si">{table_ctr}</span><span class="s2">.</span><span class="si">{field_ctr_geom}</span><span class="s2"></span>
+<span class="s2">            )</span>
+<span class="s2">            OR st_contains(</span>
+<span class="s2">                </span><span class="si">{table_idx}</span><span class="s2">.geom_border,</span>
+<span class="s2">                </span><span class="si">{table_ctr}</span><span class="s2">.</span><span class="si">{field_ctr_geom}</span><span class="s2"></span>
+<span class="s2">            )</span>
+<span class="s2">    );&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles_q</span><span class="p">,</span>
+              <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">,</span>
+              <span class="n">fields_poly</span><span class="o">=</span><span class="n">sql_fields_footprint</span><span class="p">,</span>
+              <span class="n">schema_poly</span><span class="o">=</span><span class="n">schema_poly_q</span><span class="p">,</span>
+              <span class="n">table_poly</span><span class="o">=</span><span class="n">table_poly_q</span><span class="p">,</span>
+              <span class="n">schema_ctr</span><span class="o">=</span><span class="n">schema_ctr_q</span><span class="p">,</span>
+              <span class="n">table_ctr</span><span class="o">=</span><span class="n">table_ctr_q</span><span class="p">,</span>
+              <span class="n">field_poly_id</span><span class="o">=</span><span class="n">field_poly_id_q</span><span class="p">,</span>
+              <span class="n">field_ctr_id</span><span class="o">=</span><span class="n">field_ctr_id_q</span><span class="p">,</span>
+              <span class="n">schema_idx</span><span class="o">=</span><span class="n">schema_idx_q</span><span class="p">,</span>
+              <span class="n">table_idx</span><span class="o">=</span><span class="n">table_idx_q</span><span class="p">,</span>
+              <span class="n">field_idx</span><span class="o">=</span><span class="n">field_idx_unit_q</span><span class="p">,</span>
+              <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span>
+              <span class="n">field_idx_geom</span><span class="o">=</span><span class="n">field_idx_geom_q</span><span class="p">,</span>
+              <span class="n">field_ctr_geom</span><span class="o">=</span><span class="n">field_ctr_geom_q</span>
+              <span class="p">)</span>
+        <span class="n">queries</span> <span class="o">+=</span> <span class="n">query</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">queries</span><span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Views created in schema &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">),</span> <span class="n">schema_tiles</span><span class="p">))</span></div>
+
+<span class="c1">#     except:</span>
+<span class="c1">#         return(&quot;Cannot create Views in schema &#39;%s&#39;&quot; % schema_tiles)</span>
+
+
+<div class="viewcode-block" id="partition"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.footprints.partition">[docs]</a><span class="k">def</span> <span class="nf">partition</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">fields_index</span><span class="p">,</span> <span class="n">table_footprint</span><span class="p">,</span>
+              <span class="n">fields_footprint</span><span class="p">,</span> <span class="n">prefix_tiles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Partitions geometries in a 2D footprint table into tiles.</span>
+
+<span class="sd">    Adds a geometry column to table_index.</span>
+<span class="sd">    Creates a new table &lt;table_footprint&gt;_centroid in the schema of table_footprint.</span>
+<span class="sd">    Creates a View for each tile in table_index, generating names from fields_index[2].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">    schema_tiles : str</span>
+<span class="sd">        Name of the schema where to create the tiles.</span>
+<span class="sd">    table_index : list of str</span>
+<span class="sd">        [schema, table] of the tile index.</span>
+<span class="sd">    fields_index : list of str</span>
+<span class="sd">        [ID, geometry, unit]</span>
+<span class="sd">        ID: Name of the ID field.</span>
+<span class="sd">        geometry: Name of the geometry field.</span>
+<span class="sd">        unit: Name of the field in table_index that contains the index unit names.</span>
+<span class="sd">        These values are used for the tile names in schema_tiles.</span>
+<span class="sd">    table_footprint : list of str</span>
+<span class="sd">        [schema, table] of the footprints (e.g. building footprints) that will be extruded.</span>
+<span class="sd">    fields_footprint : list of str</span>
+<span class="sd">        [ID, geometry, ...]</span>
+<span class="sd">        Names of the fields that should be selected into the View. Must contain</span>
+<span class="sd">        at least an ID and a geometry field, where ID is the field that can be joined on</span>
+<span class="sd">        table_centroid.</span>
+<span class="sd">    prefix_tiles : str, None</span>
+<span class="sd">        Prefix to prepend to the view names. If None, the views are named as</span>
+<span class="sd">        the values in fields_index[2].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tbl_ctr</span> <span class="o">=</span> <span class="n">table_footprint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_centroid&quot;</span>
+    <span class="n">table_centroid</span> <span class="o">=</span> <span class="p">[</span><span class="n">table_footprint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tbl_ctr</span><span class="p">]</span>
+    <span class="n">fields_centroid</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields_footprint</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;geom&#39;</span><span class="p">]</span>
+
+    <span class="n">update_tile_index</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">fields_index</span><span class="p">)</span>
+
+    <span class="n">create_centroids</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_centroid</span><span class="p">,</span> <span class="n">table_footprint</span><span class="p">,</span> <span class="n">fields_footprint</span><span class="p">)</span>
+
+    <span class="n">create_views</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">fields_index</span><span class="p">,</span> <span class="n">table_centroid</span><span class="p">,</span>
+                 <span class="n">fields_centroid</span><span class="p">,</span> <span class="n">table_footprint</span><span class="p">,</span> <span class="n">fields_footprint</span><span class="p">,</span>
+                 <span class="n">prefix_tiles</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

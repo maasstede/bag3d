@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.config.args &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.config.args</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.config.args</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Parse arguments and configuration file&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">sys</span> <span class="k">import</span> <span class="n">exit</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">pykwalify.core</span>
+<span class="kn">import</span> <span class="nn">pykwalify.errors</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;config.args&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="parse_console_args"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.args.parse_console_args">[docs]</a><span class="k">def</span> <span class="nf">parse_console_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse command line arguments</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : list</span>
+<span class="sd">        The list of command line arguments passed to bag3d.app.py</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The stored argument values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate a 3D BAG&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The YAML configuration file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--threads&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of threads to run.&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--update-bag&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;update_bag&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Update the BAG in the database. If it does not exists, download and restore the BAG extract into the database&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--update-ahn&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;update_ahn&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download/update the AHN files&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--update-ahn-raster&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;update_ahn_raster&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download/update the AHN 0.5m raster files. All AHN3, and AHN2 where AHN3 is not available.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--import-tile-idx&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;import_tile_idx&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Import the BAG and AHN tile indexes into the BAG database&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--add-borders&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;add_borders&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Create and configure the tiles on the AHN2-3 boundary&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--run-3dfier&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;run_3dfier&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run batch3dfier&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--grant-access&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;grant_access&#39;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Grant the necessary privileges to a user to operate on a 3DBAG database&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--export&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Export the 3D BAG into files&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--check-quality&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;quality&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run various quality tests on the 3D BAG&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-exec&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;no_exec&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Control the execution of subprocesses. Used for debugging.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">get_bag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">update_bag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">update_ahn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">update_ahn_raster</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">import_tile_idx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">add_borders</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">run_3dfier</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">quality</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">no_exec</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">args_in</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">]):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;Configuration file </span><span class="si">%s</span><span class="s1"> not round&#39;</span><span class="p">,</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">])</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">])</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">threads</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;get_bag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">get_bag</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;update_bag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">update_bag</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;update_ahn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">update_ahn</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;update_ahn_raster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">update_ahn_raster</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;import_tile_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">import_tile_idx</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;add_borders&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">add_borders</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;run_3dfier&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">run_3dfier</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;export&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">export</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">quality</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;grant_access&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">grant_access</span>
+    <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">no_exec</span>
+    
+    <span class="k">return</span> <span class="n">args_in</span></div>
+
+
+<div class="viewcode-block" id="add_abspath"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.args.add_abspath">[docs]</a><span class="k">def</span> <span class="nf">add_abspath</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Recursively append the absolute path to the paths in a nested list</span>
+<span class="sd">    </span>
+<span class="sd">    If not a list, returns the string with absolute path.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dirs : list of strings, or string</span>
+<span class="sd">        List of directory paths</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        List of absolute paths</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dirs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">dirs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dirs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_abspath</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dirs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dirs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_config"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.args.validate_config">[docs]</a><span class="k">def</span> <span class="nf">validate_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">schema</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Validates the configuration file against the schema</span>
+<span class="sd">    </span>
+<span class="sd">    The schema is located in bag3d/bag3d_cfg_schema.yml</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : str</span>
+<span class="sd">        Path to the configuration file</span>
+<span class="sd">    schema : str</span>
+<span class="sd">        Path to the schema</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If the schema is not found</span>
+<span class="sd">    PyKwalifyException</span>
+<span class="sd">        If the config file is not valid</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;Schema file </span><span class="si">%s</span><span class="s1"> not round&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">pykwalify</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Core</span><span class="p">(</span><span class="n">source_file</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">schema_files</span><span class="o">=</span><span class="p">[</span><span class="n">schema</span><span class="p">])</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">pykwalify</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">PyKwalifyException</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Configuration file is not valid&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="parse_config"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.args.parse_config">[docs]</a><span class="k">def</span> <span class="nf">parse_config</span><span class="p">(</span><span class="n">args_in</span><span class="p">,</span> <span class="n">schema</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Process the configuration file</span>
+<span class="sd">    </span>
+<span class="sd">    Validates the config file and checks a few values</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args_in : dict</span>
+<span class="sd">        Output of config.parse_console_args()</span>
+<span class="sd">    schema : str</span>
+<span class="sd">        Path to the config file schema</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The configuration parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_config</span><span class="p">(</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">],</span> <span class="n">schema</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuration file is valid&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="n">cfg_stream</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">pykwalify</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">PyKwalifyException</span><span class="p">:</span>
+        <span class="k">raise</span>
+    
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;threads&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args_in</span><span class="p">[</span><span class="s2">&quot;threads&quot;</span><span class="p">])</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">]</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_abspath</span><span class="p">(</span>
+        <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_dir&quot;</span><span class="p">])</span>
+    <span class="c1">#FIXME: remove this below --v</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;pc_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_abspath</span><span class="p">(</span>
+        <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_dir&quot;</span><span class="p">])</span>
+    
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">]</span>
+    <span class="c1">#FIXME: remove this below --v</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;polygons&#39;</span><span class="p">]</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">]</span>
+
+<span class="c1">#     cfg[&#39;output_dir&#39;] = os.path.abspath(cfg_stream[&quot;output&quot;][&quot;dir&quot;])</span>
+<span class="c1">#     if not os.path.exists(cfg[&#39;output_dir&#39;]):</span>
+<span class="c1">#         os.makedirs(cfg[&#39;output_dir&#39;], exist_ok=True)</span>
+<span class="c1">#     </span>
+<span class="c1">#     cfg[&#39;out_schema&#39;] = cfg_stream[&quot;output&quot;][&quot;schema&quot;]</span>
+<span class="c1">#     cfg[&#39;out_table&#39;] = cfg_stream[&quot;output&quot;][&quot;table&quot;]</span>
+<span class="c1">#     cfg[&#39;bag3d_table&#39;] = cfg_stream[&quot;output&quot;][&quot;bag3d_table&quot;]</span>
+    
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">])</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;path_3dfier&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;path_3dfier&quot;</span><span class="p">]</span>
+
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">]</span>
+    <span class="c1">#FIXME: sanitzie this below --v</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># in case user gave &quot; &quot; or &quot;&quot; for &#39;extent&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;extent&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">EXTENT_FILE</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;extent string has length &lt;= 1&quot;</span><span class="p">)</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;extent_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+            <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;extent&quot;</span><span class="p">])</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">NameError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">tile_list</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">tile_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;Please provide input for tile_list as a list: [...]&quot;</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tile_list</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;extent_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># &#39;user_schema&#39; is used for the &#39;_clip3dfy_&#39; and &#39;_union&#39; views, thus</span>
+    <span class="c1"># only use &#39;user_schema&#39; if &#39;extent&#39; is provided</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_schema&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_schema&quot;</span><span class="p">]</span>
+    <span class="n">USER_SCHEMA</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;user_schema&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">USER_SCHEMA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">EXTENT_FILE</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;user_schema or extent is None&quot;</span><span class="p">)</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s1">&#39;user_schema&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s1">&#39;tile_schema&#39;</span><span class="p">]</span>
+
+    
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span>
+
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;footprints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;footprints&quot;</span><span class="p">]</span>
+
+    <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;prefix_tile_footprint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_prefix&quot;</span><span class="p">]</span>
+    
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;in&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">]</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;cfg_file&#39;</span><span class="p">])</span>
+    <span class="n">rest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;cfg_rest&quot;</span><span class="p">)</span>
+    <span class="n">ahn2_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;cfg_ahn2&quot;</span><span class="p">)</span>
+    <span class="n">ahn3_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;cfg_ahn3&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="n">rest_dir</span><span class="p">,</span> <span class="n">ahn2_dir</span><span class="p">,</span> <span class="n">ahn3_dir</span><span class="p">]:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;out_rest&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rest_dir</span><span class="p">,</span> 
+                                             <span class="s2">&quot;bag3d_cfg_rest.yml&quot;</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;out_border_ahn2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ahn2_dir</span><span class="p">,</span> 
+                                                    <span class="s2">&quot;bag3d_cfg_border_ahn2.yml&quot;</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;out_border_ahn3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ahn3_dir</span><span class="p">,</span> 
+                                                    <span class="s2">&quot;bag3d_cfg_border_ahn3.yml&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn2_rast_dir&quot;</span><span class="p">]:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn2_rast_dir&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn3_rast_dir&quot;</span><span class="p">]:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn3_rast_dir&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg_stream</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">cfg</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

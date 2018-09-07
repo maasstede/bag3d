@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d package &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>bag3d package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_modules/bag3d.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bag3d-package">
+<h1>bag3d package<a class="headerlink" href="#bag3d-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bag3d.batch3dfier.html">bag3d.batch3dfier package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.batch3dfier.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.batch3dfier.html#module-bag3d.batch3dfier.process">bag3d.batch3dfier.process module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.batch3dfier.html#module-bag3d.batch3dfier">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bag3d.config.html">bag3d.config package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#module-bag3d.config.args">bag3d.config.args module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#module-bag3d.config.batch3dfier">bag3d.config.batch3dfier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#module-bag3d.config.border">bag3d.config.border module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#module-bag3d.config.db">bag3d.config.db module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#module-bag3d.config.footprints">bag3d.config.footprints module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.config.html#module-bag3d.config">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bag3d.quality.html">bag3d.quality package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.quality.html#module-bag3d.quality">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bag3d.update.html">bag3d.update package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.update.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.update.html#module-bag3d.update.ahn">bag3d.update.ahn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.update.html#module-bag3d.update.bag">bag3d.update.bag module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag3d.update.html#module-bag3d.update">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bag3d.app">
+<span id="bag3d-app-module"></span><h2>bag3d.app module<a class="headerlink" href="#module-bag3d.app" title="Permalink to this headline">¶</a></h2>
+<p>Handles the whole flow of updating AHN files and BAG, and generating the 3D BAG</p>
+<dl class="function">
+<dt id="bag3d.app.app">
+<code class="descclassname">bag3d.app.</code><code class="descname">app</code><span class="sig-paren">(</span><em>cli_args</em>, <em>here</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/app.html#app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.app.app" title="Permalink to this definition">¶</a></dt>
+<dd><p>The command line application</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cli_args</strong> (<em>list of strings</em>) – Command line arguments</li>
+<li><strong>here</strong> (<em>string</em>) – Path to the source code directory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.exporter">
+<span id="bag3d-exporter-module"></span><h2>bag3d.exporter module<a class="headerlink" href="#module-bag3d.exporter" title="Permalink to this headline">¶</a></h2>
+<p>Export the 3D BAG into files</p>
+<dl class="function">
+<dt id="bag3d.exporter.csv">
+<code class="descclassname">bag3d.exporter.</code><code class="descname">csv</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>out_dir</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/exporter.html#csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.exporter.csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the 3DBAG table into a CSV file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – Configuration</li>
+<li><strong>out_dir</strong> (<em>str</em>) – Path to the output directory. The directory ‘csv’ will be created if
+doesn’t exist.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.exporter.gpkg">
+<code class="descclassname">bag3d.exporter.</code><code class="descname">gpkg</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>out_dir</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/exporter.html#gpkg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.exporter.gpkg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export into GeoPackage</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – Configuration</li>
+<li><strong>out_dir</strong> (<em>str</em>) – Path to the output directory. The directory ‘csv’ will be created if
+doesn’t exist.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.exporter.postgis">
+<code class="descclassname">bag3d.exporter.</code><code class="descname">postgis</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>out_dir</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/exporter.html#postgis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.exporter.postgis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export as PostgreSQL backup file</p>
+<p>For example the backup can be restored as:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>createdb &lt;db&gt;
+psql -d &lt;db&gt; -c <span class="s1">&#39;create extension postgis;&#39;</span>
+pg_restore --no-owner --no-privileges -h &lt;host&gt; -U &lt;user&gt; -d &lt;db&gt; -w bagactueel_schema.backup
+pg_restore --no-owner --no-privileges -j <span class="m">2</span> --clean -h &lt;host&gt; -U &lt;user&gt; -d &lt;db&gt; -w &lt;bag3d backup&gt;.backup
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – Configuration</li>
+<li><strong>out_dir</strong> (<em>str</em>) – Path to the output directory. The directory ‘csv’ will be created if
+doesn’t exist.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.importer">
+<span id="bag3d-importer-module"></span><h2>bag3d.importer module<a class="headerlink" href="#module-bag3d.importer" title="Permalink to this headline">¶</a></h2>
+<p>Import batch3dfier output into the database</p>
+<dl class="function">
+<dt id="bag3d.importer.create_bag3d_relations">
+<code class="descclassname">bag3d.importer.</code><code class="descname">create_bag3d_relations</code><span class="sig-paren">(</span><em>conn</em>, <em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/importer.html#create_bag3d_relations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.importer.create_bag3d_relations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the necessary postgres tables and views for the 3D BAG</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>cfg</strong> (<em>dict</em>) – batch3dfier YAML config as returned by <a class="reference internal" href="bag3d.config.html#bag3d.config.args.parse_config" title="bag3d.config.args.parse_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bag3d.config.args.parse_config()</span></code></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.importer.create_bag3d_table">
+<code class="descclassname">bag3d.importer.</code><code class="descname">create_bag3d_table</code><span class="sig-paren">(</span><em>conn</em>, <em>schema</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/importer.html#create_bag3d_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.importer.create_bag3d_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unite the border tiles with the rest</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Persists and indexes the table ‘bag3d’ by uniting the border tiles with the
+rest.
+Drops the table ‘bag3d’ if exists before the operation.
+Drops the view ‘bag3d_border_union’.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>schema</strong> (<em>str</em>) – Value from output:schema</li>
+<li><strong>name</strong> (<em>str</em>) – Name of the new table</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">BaseException</span></code> – If cannot create the table</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">psycopg2.IntegrityError</span></code> – If the ‘gid’ field cannot be made PRIMARY KEY due to duplicate records</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Creates a table in database</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.importer.create_heights_table">
+<code class="descclassname">bag3d.importer.</code><code class="descname">create_heights_table</code><span class="sig-paren">(</span><em>conn</em>, <em>schema</em>, <em>table</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/importer.html#create_heights_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.importer.create_heights_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a postgres table that can store the content of 3dfier’s CSV-BUILDINGS-MULTIPLE output</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The ‘id’ field is set to numeric because the data type of the
+BAG ‘identificatie’ field in the NLExtract changes between extracts.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>schema</strong> (<em>string</em>) – Name of the schema where to create the table</li>
+<li><strong>table</strong> (<em>string</em>) – Name of the new table</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code> – Raises every exception</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">boolean</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.importer.csv2db">
+<code class="descclassname">bag3d.importer.</code><code class="descname">csv2db</code><span class="sig-paren">(</span><em>conn</em>, <em>cfg</em>, <em>out_paths</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/importer.html#csv2db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.importer.csv2db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table with multiple height info per BAG building footprint</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only for 3dfier’s CSV-BUILDINGS-MULTIPLE output.
+Only Linux.
+Alter the CSV files by adding the ahn_file_date, ahn_version fields and values.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>cfg</strong> (<em>dict</em>) – batch3dfier YAML config as returned by <a class="reference internal" href="bag3d.config.html#bag3d.config.args.parse_config" title="bag3d.config.args.parse_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bag3d.config.args.parse_config()</span></code></a></li>
+<li><strong>out_paths</strong> (<em>list of strings</em>) – Paths of the CSV files</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.importer.import_csv">
+<code class="descclassname">bag3d.importer.</code><code class="descname">import_csv</code><span class="sig-paren">(</span><em>conn</em>, <em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/importer.html#import_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.importer.import_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import the batch3dfier CSV output into the BAG database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>cfg</strong> (<em>dict</em>) – batch3dfier YAML config as returned by <a class="reference internal" href="bag3d.config.html#bag3d.config.args.parse_config" title="bag3d.config.args.parse_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bag3d.config.args.parse_config()</span></code></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.importer.unite_border_tiles">
+<code class="descclassname">bag3d.importer.</code><code class="descname">unite_border_tiles</code><span class="sig-paren">(</span><em>conn</em>, <em>schema</em>, <em>border_ahn2</em>, <em>border_ahn3</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/importer.html#unite_border_tiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.importer.unite_border_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unite the border tiles on the AHN2 and AHN3 border</p>
+<p>Creates a view ‘bag3d_border_union’ in schema. The view has the following
+condition on the imported CSV files:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">WHERE</span>
+<span class="n">a</span><span class="p">.</span><span class="ss">&quot;ground-0.00&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;ground-0.10&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;ground-0.20&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;ground-0.30&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;ground-0.40&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;ground-0.50&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.00&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.10&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.25&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.50&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.75&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.90&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.95&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+<span class="k">AND</span> <span class="n">a</span><span class="p">.</span><span class="ss">&quot;roof-0.99&quot;</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">NULL</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">BAG field name ‘identificatie’ is hardcoded</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="bag3d.config.html#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>schema</strong> (<em>str</em>) – Value from output:schema</li>
+<li><strong>border_ahn2</strong> (<em>str</em>) – Value from output:bag3d_table in case of AHN2 border tiles</li>
+<li><strong>border_ahn2</strong> – Value from output:bag3d_table in case of AHN3 border tiles</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BaseException</span></code> – If cannot create the view</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Creates a view in database</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bag3d" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

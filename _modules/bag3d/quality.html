@@ -1,0 +1,575 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.quality &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.quality</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.quality</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Quality control for the 3D BAG&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">sqrt</span>
+
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="k">import</span> <span class="n">sql</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">rasterstats</span> <span class="k">import</span> <span class="n">zonal_stats</span>
+
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">border</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;quality&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_quality_views"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.create_quality_views">[docs]</a><span class="k">def</span> <span class="nf">create_quality_views</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create the views that are used for quality control</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    cfg: dict</span>
+<span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
+<span class="sd">    </span>
+<span class="sd">    Retruns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The configuration with the names of the created views (in quality:views)</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    BaseException</span>
+<span class="sd">        If cannot create the table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">cfg</span>
+    
+    <span class="n">name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;bag3d_table&quot;</span><span class="p">]</span>
+    <span class="n">name_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;valid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_valid&quot;</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;invalid_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_invalid_height&quot;</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;missing_ground&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_missing_ground&quot;</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;missing_roof&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_missing_roof&quot;</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_sample&quot;</span>
+    
+    <span class="n">viewname</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;valid&quot;</span><span class="p">])</span>
+    <span class="n">query_valid</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE TABLE IF NOT EXISTS bagactueel.</span><span class="si">{viewname}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2"></span>
+<span class="s2">    WHERE bouwjaar &lt;= date_part(&#39;YEAR&#39;, ahn_file_date)</span>
+<span class="s2">    AND pandstatus &lt;&gt; &#39;Bouwvergunning verleend&#39;::bagactueel.pandstatus</span>
+<span class="s2">    AND pandstatus &lt;&gt; &#39;Bouw gestart&#39;::bagactueel.pandstatus</span>
+<span class="s2">    AND pandstatus &lt;&gt; &#39;Niet gerealiseerd pand&#39;::bagactueel.pandstatus</span>
+<span class="s2">    AND pandstatus &lt;&gt; &#39;Pand gesloopt&#39;::bagactueel.pandstatus;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">name_q</span><span class="p">,</span> <span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">)</span>
+    
+    <span class="n">viewname</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;invalid_height&quot;</span><span class="p">])</span>
+    <span class="n">query_v</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE OR REPLACE VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2"></span>
+<span class="s2">    WHERE bouwjaar &gt; date_part(&#39;YEAR&#39;, ahn_file_date);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">name_q</span><span class="p">,</span> 
+                <span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">)</span>
+    <span class="n">query_vc</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    COMMENT ON VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> IS </span><span class="se">\</span>
+<span class="s2">    &#39;The BAG footprints where the building was built before the AHN3 was created&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">)</span>
+
+    <span class="n">viewname</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;missing_ground&quot;</span><span class="p">])</span>
+    <span class="n">query_g</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE OR REPLACE VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2"></span>
+<span class="s2">    WHERE</span>
+<span class="s2">    &quot;ground-0.00&quot; IS NULL OR </span>
+<span class="s2">    &quot;ground-0.10&quot; IS NULL OR </span>
+<span class="s2">    &quot;ground-0.20&quot; IS NULL OR </span>
+<span class="s2">    &quot;ground-0.30&quot; IS NULL OR </span>
+<span class="s2">    &quot;ground-0.40&quot; IS NULL OR </span>
+<span class="s2">    &quot;ground-0.50&quot; IS NULL;</span>
+<span class="s2">    COMMENT ON VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> IS &#39;Buildings where any of the ground-heights is missing&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;valid&quot;</span><span class="p">]),</span> 
+                <span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">)</span>
+
+    <span class="n">viewname</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;missing_roof&quot;</span><span class="p">])</span>
+    <span class="n">query_r</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE OR REPLACE VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2"></span>
+<span class="s2">    WHERE</span>
+<span class="s2">    &quot;roof-0.00&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.10&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.25&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.50&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.75&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.90&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.95&quot; IS NULL OR</span>
+<span class="s2">    &quot;roof-0.99&quot; IS NULL;</span>
+<span class="s2">    COMMENT ON VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> IS &#39;Buildings where any of the roof heights is missing&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;valid&quot;</span><span class="p">]),</span> 
+                <span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">)</span>
+    
+    <span class="n">tbl_schema</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">]</span>
+    <span class="n">tbl_tile</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;unit_name&#39;</span><span class="p">]</span>
+    <span class="n">border_table</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;border_table&#39;</span><span class="p">]</span>
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">get_non_border_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">tbl_schema</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">,</span> <span class="n">border_table</span><span class="p">,</span>
+                                     <span class="n">tbl_tile</span><span class="p">)</span>
+    <span class="n">t_rest</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">]</span>
+    <span class="n">viewname</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;sample&quot;</span><span class="p">])</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;sample_size&quot;</span><span class="p">]))</span>
+    <span class="n">query_s</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE OR REPLACE VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2"></span>
+<span class="s2">    TABLESAMPLE BERNOULLI (</span><span class="si">{size}</span><span class="s2">)</span>
+<span class="s2">    WHERE tile_id = ANY(</span><span class="si">{non_border_tiles}</span><span class="s2">);</span>
+<span class="s2">    COMMENT ON VIEW bagactueel.</span><span class="si">{viewname}</span><span class="s2"> IS &#39;Random sample of the 3D BAG, using Bernoulli sampling method. Border tiles are excluded.&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;valid&quot;</span><span class="p">]),</span> 
+                <span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">non_border_tiles</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">t_rest</span><span class="p">))</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_valid</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_valid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_v</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_v</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_vc</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_vc</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_g</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_g</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_r</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_r</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_s</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_s</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span>
+    
+    <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="get_counts"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.get_counts">[docs]</a><span class="k">def</span> <span class="nf">get_counts</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Various counts on the 3D BAG</span>
+<span class="sd">    </span>
+<span class="sd">    * Total number of buildings, </span>
+<span class="sd">    * Nr. of buildings with missing ground height,</span>
+<span class="sd">    * Nr. of buildings with missing roof height,</span>
+<span class="sd">    * The previous two as percent</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    config: dict</span>
+<span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        With the field names as keys</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">view_valid</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;valid&quot;</span><span class="p">])</span>
+    <span class="n">view_h</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;invalid_height&quot;</span><span class="p">])</span>
+    <span class="n">view_g</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;missing_ground&quot;</span><span class="p">])</span>
+    <span class="n">view_r</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;missing_roof&quot;</span><span class="p">])</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    WITH total AS (</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            COUNT(gid) total_cnt</span>
+<span class="s2">        FROM</span>
+<span class="s2">            bagactueel.</span><span class="si">{bag3d}</span><span class="s2"></span>
+<span class="s2">    ),</span>
+<span class="s2">    ground AS (</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            COUNT(gid) ground_missing_cnt</span>
+<span class="s2">        FROM</span>
+<span class="s2">            bagactueel.</span><span class="si">{view_g}</span><span class="s2"></span>
+<span class="s2">    ),</span>
+<span class="s2">    roof AS (</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            COUNT(gid) roof_missing_cnt</span>
+<span class="s2">        FROM</span>
+<span class="s2">            bagactueel.</span><span class="si">{view_r}</span><span class="s2"></span>
+<span class="s2">    ),</span>
+<span class="s2">    invalid AS (</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            COUNT (gid) invalid_height_cnt</span>
+<span class="s2">        FROM</span>
+<span class="s2">            bagactueel.</span><span class="si">{view_h}</span><span class="s2"></span>
+<span class="s2">    ),</span>
+<span class="s2">    valid AS (</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            COUNT (gid) valid_cnt</span>
+<span class="s2">        FROM</span>
+<span class="s2">            bagactueel.</span><span class="si">{view_valid}</span><span class="s2"></span>
+<span class="s2">    ) SELECT</span>
+<span class="s2">        g.ground_missing_cnt,</span>
+<span class="s2">        r.roof_missing_cnt,</span>
+<span class="s2">        i.invalid_height_cnt,</span>
+<span class="s2">        v.valid_cnt,</span>
+<span class="s2">        t.total_cnt,</span>
+<span class="s2">        (</span>
+<span class="s2">            g.ground_missing_cnt::FLOAT4 / v.valid_cnt::FLOAT4</span>
+<span class="s2">        )* 100 AS ground_missing_pct,</span>
+<span class="s2">        (</span>
+<span class="s2">            r.roof_missing_cnt::FLOAT4 / v.valid_cnt::FLOAT4</span>
+<span class="s2">        )* 100 AS roof_missing_pct,</span>
+<span class="s2">        (</span>
+<span class="s2">            i.invalid_height_cnt::FLOAT4 / v.valid_cnt::FLOAT4</span>
+<span class="s2">        )* 100 AS invalid_height_pct,</span>
+<span class="s2">        (</span>
+<span class="s2">            v.valid_cnt::FLOAT4 / t.total_cnt::FLOAT4</span>
+<span class="s2">        )* 100 AS valid_pct</span>
+<span class="s2">    FROM</span>
+<span class="s2">        total t,</span>
+<span class="s2">        ground g,</span>
+<span class="s2">        roof r,</span>
+<span class="s2">        invalid i,</span>
+<span class="s2">        valid v;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;bag3d_table&quot;</span><span class="p">]),</span>
+                <span class="n">view_g</span><span class="o">=</span><span class="n">view_g</span><span class="p">,</span> <span class="n">view_r</span><span class="o">=</span><span class="n">view_r</span><span class="p">,</span> <span class="n">view_h</span><span class="o">=</span><span class="n">view_h</span><span class="p">,</span>
+                <span class="n">view_valid</span><span class="o">=</span><span class="n">view_valid</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="get_sample"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.get_sample">[docs]</a><span class="k">def</span> <span class="nf">get_sample</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get a random sample of buildings from the 3D BAG</span>
+<span class="sd">    </span>
+<span class="sd">    Sample size is defined in create_quality_views()</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    cfg: dict</span>
+<span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">viewname</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;views&quot;</span><span class="p">][</span><span class="s2">&quot;sample&quot;</span><span class="p">])</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;footprints&quot;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;geometry&quot;</span><span class="p">])</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    SELECT </span>
+<span class="s2">    gid,</span>
+<span class="s2">    ST_AsEWKB(</span><span class="si">{geom}</span><span class="s2">) geom,</span>
+<span class="s2">    &quot;roof-0.00&quot; &quot;percentile_0.00&quot;,</span>
+<span class="s2">    &quot;roof-0.10&quot; &quot;percentile_0.10&quot;,</span>
+<span class="s2">    &quot;roof-0.25&quot; &quot;percentile_0.25&quot;,</span>
+<span class="s2">    &quot;roof-0.50&quot; &quot;percentile_0.50&quot;,</span>
+<span class="s2">    &quot;roof-0.75&quot; &quot;percentile_0.75&quot;,</span>
+<span class="s2">    &quot;roof-0.90&quot; &quot;percentile_0.90&quot;,</span>
+<span class="s2">    &quot;roof-0.95&quot; &quot;percentile_0.95&quot;,</span>
+<span class="s2">    &quot;roof-0.99&quot; &quot;percentile_0.99&quot;,</span>
+<span class="s2">    tile_id,</span>
+<span class="s2">    ahn_version</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{viewname}</span><span class="s2"></span>
+<span class="s2">    ORDER BY tile_id;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span>
+                <span class="n">viewname</span><span class="o">=</span><span class="n">viewname</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="compute_stats"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.compute_stats">[docs]</a><span class="k">def</span> <span class="nf">compute_stats</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute statistics from a reference data set for comparison with </span>
+<span class="sd">    3dfier&#39;s output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Computing </span><span class="si">%s</span><span class="s2"> from reference data&quot;</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
+    <span class="n">tiles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;tile_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">])</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> tiles selected&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">file_idx</span><span class="p">:</span>
+            <span class="n">rast</span> <span class="o">=</span> <span class="n">file_idx</span><span class="p">[</span><span class="n">tile</span><span class="p">]</span>
+            <span class="n">fprints_in_tile</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">fp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sample</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;oh oh, unexpected list&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">fp</span><span class="p">[</span><span class="s2">&quot;tile_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">tile</span><span class="p">:</span>
+                        <span class="n">fprints_in_tile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+                        <span class="k">del</span> <span class="n">sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">polys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s1">&#39;geom&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">fprints_in_tile</span><span class="p">]</span>
+            <span class="n">ref_heights</span> <span class="o">=</span> <span class="n">zonal_stats</span><span class="p">(</span><span class="n">polys</span><span class="p">,</span> <span class="n">rast</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="n">stats</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">fp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fprints_in_tile</span><span class="p">):</span>
+                <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_heights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not in raster index&quot;</span><span class="p">,</span> <span class="n">tile</span><span class="p">)</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="export_stats"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.export_stats">[docs]</a><span class="k">def</span> <span class="nf">export_stats</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">fout</span><span class="p">):</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="p">{</span><span class="n">fp</span><span class="p">[</span><span class="s1">&#39;gid&#39;</span><span class="p">]:</span><span class="n">fp</span> <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="compute_diffs"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.compute_diffs">[docs]</a><span class="k">def</span> <span class="nf">compute_diffs</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">      </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample : list of dict</span>
+<span class="sd">        Sample with reference heights</span>
+<span class="sd">      </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        {percentile : Numpy Array of &#39;computed-height - reference-height&#39; differences}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">diffs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gid&#39;</span><span class="p">,</span><span class="s1">&#39;ahn_version&#39;</span><span class="p">,</span><span class="s1">&#39;tile_id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stats</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;percentile&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="ow">and</span> <span class="n">fp</span><span class="p">[</span><span class="s2">&quot;reference&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">-</span> <span class="n">fp</span><span class="p">[</span><span class="s2">&quot;reference&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">diffs</span><span class="p">,</span><span class="n">fields</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rmse"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.rmse">[docs]</a><span class="k">def</span> <span class="nf">rmse</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute Root Mean Square Error from a Numpy Array of height - reference </span>
+<span class="sd">    differences</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">d</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">a</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="compute_rmse"><a class="viewcode-back" href="../bag3d.quality.html#bag3d.quality.compute_rmse">[docs]</a><span class="k">def</span> <span class="nf">compute_rmse</span><span class="p">(</span><span class="n">diffs</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the RMSE across the whole sample&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">pctile</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Computing </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pctile</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="n">pctile</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">pctile</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">rmse</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">)]),</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

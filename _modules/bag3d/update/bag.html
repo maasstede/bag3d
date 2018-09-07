@@ -1,0 +1,527 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.update.bag &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.update.bag</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.update.bag</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Update the BAG database (2D) and tile index&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">PIPE</span>
+<span class="kn">import</span> <span class="nn">locale</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="k">import</span> <span class="n">sql</span>
+
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">db</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;update.bag&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="run_subprocess"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.run_subprocess">[docs]</a><span class="k">def</span> <span class="nf">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Subprocess runner</span>
+<span class="sd">    </span>
+<span class="sd">    If subrocess returns non-zero exit code, STDERR is sent to the logger.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    command : list of str</span>
+<span class="sd">        Command to pass to subprocess.run(). Eg [&#39;wget&#39;, &#39;-q&#39;, &#39;-r&#39;, dl_url]</span>
+<span class="sd">    shell : bool</span>
+<span class="sd">        Passed to subprocess.run()</span>
+<span class="sd">    doexec : bool</span>
+<span class="sd">        Execute the subprocess or just print out the concatenated command</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">doexec</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shell</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">cmd</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="n">shell</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">getpreferredencoding</span><span class="p">(</span><span class="n">do_setlocale</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Process returned with non-zero exit code&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not executing </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_latest_BAG"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.get_latest_BAG">[docs]</a><span class="k">def</span> <span class="nf">get_latest_BAG</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the date of the latest BAG extract from NLExtract</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        URL to the BAG extract eg http://data.nlextract.nl/bag/postgis/</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    datetime.date</span>
+<span class="sd">        Date of the latest available BAG extract</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">&quot;lxml&quot;</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">)</span>
+    
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;tr&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">ele</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">date</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;bag-laatst.backup&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="setup_BAG"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.setup_BAG">[docs]</a><span class="k">def</span> <span class="nf">setup_BAG</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prepares the BAG database</span>
+<span class="sd">    </span>
+<span class="sd">    Creates the *public.bag_updates* table and *tile_index* schema.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    doexec : bool</span>
+<span class="sd">        Passed to :py:func:`run_subprocess`</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">check_postgis</span><span class="p">()</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">CREATE TABLE IF NOT EXISTS public.bag_updates (id serial constraint id_pkey primary key, last_update timestamp, note text);</span>
+<span class="s2">CREATE SCHEMA IF NOT EXISTS tile_index;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">doexec</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="run_pg_restore"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.run_pg_restore">[docs]</a><span class="k">def</span> <span class="nf">run_pg_restore</span><span class="p">(</span><span class="n">dbase</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run the pg_restore process</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dbase : dict</span>
+<span class="sd">        Dict containing the database connection parameters from the config file</span>
+<span class="sd">    doexec : bool</span>
+<span class="sd">        Passed to :py:func:`run_subprocess`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Drop the schema first in order to restore</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;psql&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span> <span class="s1">&#39;-U&#39;</span><span class="p">,</span> <span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span>
+               <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;dbname&#39;</span><span class="p">],</span> <span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span>
+               <span class="s2">&quot;&#39;DROP SCHEMA IF EXISTS bagactueel CASCADE;&#39;&quot;</span><span class="p">]</span>
+    <span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+    
+    <span class="c1"># Restore from the latest extract</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pg_restore&#39;</span><span class="p">,</span> <span class="s1">&#39;--no-owner&#39;</span><span class="p">,</span> <span class="s1">&#39;--no-privileges&#39;</span><span class="p">,</span> <span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="s1">&#39;20&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span> <span class="s1">&#39;-U&#39;</span><span class="p">,</span> <span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span> <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;dbname&#39;</span><span class="p">],</span>
+               <span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;./data.nlextract.nl/bag/postgis/bag-laatst.backup&#39;</span><span class="p">]</span>
+    <span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download_BAG"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.download_BAG">[docs]</a><span class="k">def</span> <span class="nf">download_BAG</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download the latest BAG extract</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        URL to the BAG extract eg http://data.nlextract.nl/bag/postgis/</span>
+<span class="sd">    doexec : bool</span>
+<span class="sd">        Passed to :py:func:`run_subprocess`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dl_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;bag-laatst.backup&#39;</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wget&#39;</span><span class="p">,</span> <span class="s1">&#39;-q&#39;</span><span class="p">,</span> <span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="n">dl_url</span><span class="p">]</span> 
+    <span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="restore_BAG"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.restore_BAG">[docs]</a><span class="k">def</span> <span class="nf">restore_BAG</span><span class="p">(</span><span class="n">dbase</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Restores the BAG extract into a database</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dbase : dict</span>
+<span class="sd">        Dict containing the database connection parameters from the config file</span>
+<span class="sd">    doexec : bool</span>
+<span class="sd">        Passed to :py:func:`run_subprocess`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True on success, False on failure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">db</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;dbname&#39;</span><span class="p">],</span> <span class="n">host</span><span class="o">=</span><span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">],</span>
+                  <span class="n">port</span><span class="o">=</span><span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span> 
+                  <span class="n">password</span><span class="o">=</span><span class="n">dbase</span><span class="p">[</span><span class="s1">&#39;pw&#39;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">raise</span>
+    
+    <span class="n">setup_BAG</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+    
+    <span class="n">bag_url</span> <span class="o">=</span> <span class="s1">&#39;http://data.nlextract.nl/bag/postgis/&#39;</span>
+    <span class="n">bag_latest</span> <span class="o">=</span> <span class="n">get_latest_BAG</span><span class="p">(</span><span class="n">bag_url</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;bag_latest is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">bag_latest</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+    
+    <span class="c1"># Get the date of the last update on the BAG database on Godzilla ----------</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;SELECT max(last_update) FROM public.bag_updates;&quot;</span>
+    <span class="n">godzilla_update</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c1"># in case there is no entry yet in last_update</span>
+    <span class="k">if</span> <span class="n">godzilla_update</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;public.bag_updates is not empty&quot;</span><span class="p">)</span>
+        <span class="n">godzilla_update</span> <span class="o">=</span> <span class="n">godzilla_update</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;public.bag_updates is empty&quot;</span><span class="p">)</span>
+        <span class="n">godzilla_update</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;godzilla_update is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">godzilla_update</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+    
+    <span class="c1"># Download the latest dump if necessary ------------------------------------</span>
+    <span class="k">if</span> <span class="n">bag_latest</span> <span class="o">&gt;</span> <span class="n">godzilla_update</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;There is a newer BAG-extract available, starting download and update...&quot;</span><span class="p">)</span>
+        <span class="n">download_BAG</span><span class="p">(</span><span class="n">bag_url</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+        
+        <span class="n">run_pg_restore</span><span class="p">(</span><span class="n">dbase</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+        
+        <span class="c1"># Update timestamp in bag_updates</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">INSERT INTO public.bag_updates (last_update, note)</span>
+<span class="s2">VALUES (</span><span class="si">{}</span><span class="s2">, &#39;auto-update by overwriting the bagactueel schema&#39;);</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">bag_latest</span><span class="p">))</span>
+<span class="c1">#         logger.debug(query.as_string(conn.conn).strip().replace(&#39;\n&#39;, &#39; &#39;))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">doexec</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            COMMENT ON SCHEMA bagactueel IS </span>
+<span class="s2">            &#39;!!! WARNING !!! This schema contains the BAG itself.</span>
+<span class="s2">             At every update, there is a DROP SCHEMA bagactueel CASCADE,</span>
+<span class="s2">            which deletes the schema with all its contents and all objects</span>
+<span class="s2">            depending on the schema. Therefore you might want to save</span>
+<span class="s2">            your scripts to recreate the views etc. that depend on</span>
+<span class="s2">            this schema, otherwise they will be lost forever.&#39;;</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updated bag_updates and commented on bagactueel schema.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Cannot update public.bag_updates and/or comment on</span>
+<span class="s2">                 schema bagactueel. Rolling back transaction&quot;&quot;&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rm&#39;</span><span class="p">,</span> <span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;./data.nlextract.nl&#39;</span><span class="p">]</span>
+                <span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not executing commands&quot;</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Godzilla is up-to-date with the BAG.&quot;</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="import_index"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.import_index">[docs]</a><span class="k">def</span> <span class="nf">import_index</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">tile_schema</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import the tile index into the database</span>
+<span class="sd">    </span>
+<span class="sd">    Calls ogr2ogr to import a tile index with EPSG:28992 into the tile_index</span>
+<span class="sd">    schema.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pg_conn</span> <span class="o">=</span> <span class="s1">&#39;PG:&quot;dbname=</span><span class="si">{d}</span><span class="s1"> host=</span><span class="si">{h}</span><span class="s1"> port=</span><span class="si">{p}</span><span class="s1"> user=</span><span class="si">{u}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;SCHEMA=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tile_schema</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ogr2ogr&#39;</span><span class="p">,</span> <span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;PostgreSQL&#39;</span><span class="p">,</span> <span class="n">pg_conn</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> 
+               <span class="s1">&#39;-skip-failure&#39;</span><span class="p">,</span> <span class="s1">&#39;-a_srs&#39;</span><span class="p">,</span> <span class="s1">&#39;EPSG:28992&#39;</span><span class="p">,</span> 
+               <span class="s1">&#39;-lco&#39;</span><span class="p">,</span> <span class="s1">&#39;OVERWRITE=yes&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;-lco&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span>
+               <span class="s1">&#39;-lco&#39;</span><span class="p">,</span> <span class="s1">&#39;FID=id&#39;</span><span class="p">,</span> 
+               <span class="s1">&#39;-lco&#39;</span><span class="p">,</span> <span class="s1">&#39;GEOMETRY_NAME=geom&#39;</span><span class="p">]</span>
+    <span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="grant_access"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.grant_access">[docs]</a><span class="k">def</span> <span class="nf">grant_access</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">tile_schema</span><span class="p">,</span> <span class="n">tile_index_schema</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Grants all the necessary privileges for a user for operating on the 3DBAG database</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    user : str</span>
+<span class="sd">        User to grant the privileges to</span>
+<span class="sd">    tile_schema : str</span>
+<span class="sd">        Schema with the footprint tiles, in config: &#39;input_polygons:tile_schema&#39;</span>
+<span class="sd">    tile_index_schema : str</span>
+<span class="sd">        Schema with the footprint tile index, in config: &#39;tile_index:polygons:schema&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nothing</span>
+<span class="sd">        nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query_public</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">GRANT EXECUTE ON ALL functions IN SCHEMA public TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT SELECT ON ALL tables IN SCHEMA public TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT USAGE, SELECT ON ALL sequences IN SCHEMA public TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_public</span><span class="p">))</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_public</span><span class="p">)</span>
+    
+    <span class="n">query_bagactueel</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">GRANT USAGE ON SCHEMA bagactueel TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT SELECT ON ALL tables IN SCHEMA bagactueel TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT USAGE, SELECT ON ALL sequences IN SCHEMA bagactueel TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_bagactueel</span><span class="p">))</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_bagactueel</span><span class="p">)</span>
+    
+    <span class="n">query_tile_schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">GRANT USAGE ON SCHEMA </span><span class="si">{s}</span><span class="s2"> TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT SELECT, UPDATE, INSERT ON ALL tables IN SCHEMA </span><span class="si">{s}</span><span class="s2"> TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT USAGE, SELECT, UPDATE ON ALL sequences IN SCHEMA </span><span class="si">{s}</span><span class="s2"> TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">tile_schema</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_tile_schema</span><span class="p">))</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_tile_schema</span><span class="p">)</span>
+
+    <span class="n">query_tile_index_schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">GRANT USAGE ON SCHEMA </span><span class="si">{s}</span><span class="s2"> TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT SELECT, UPDATE, INSERT ON ALL tables IN SCHEMA </span><span class="si">{s}</span><span class="s2"> TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">GRANT USAGE, SELECT, UPDATE ON ALL sequences IN SCHEMA </span><span class="si">{s}</span><span class="s2"> TO </span><span class="si">{u}</span><span class="s2">;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">tile_index_schema</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_tile_index_schema</span><span class="p">))</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_tile_index_schema</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

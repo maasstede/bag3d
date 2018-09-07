@@ -1,0 +1,468 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.update.ahn &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.update.ahn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.update.ahn</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Update the AHN files and tile index&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">locale</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span><span class="o">,</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">border</span>
+<span class="kn">from</span> <span class="nn">bag3d.update</span> <span class="k">import</span> <span class="n">bag</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;update.ahn&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="update_json_id"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.update_json_id">[docs]</a><span class="k">def</span> <span class="nf">update_json_id</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update a GeoJSON tile index&#39;s ID field</span>
+<span class="sd">    </span>
+<span class="sd">    Overwrites or adds the &quot;id&quot; field as sequential integer</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    json: a parsed GeoJSON</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The modified GeoJSON</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]):</span>
+        <span class="n">json</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">json</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">json</span></div>
+
+
+<div class="viewcode-block" id="download_ahn_index"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.download_ahn_index">[docs]</a><span class="k">def</span> <span class="nf">download_ahn_index</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Download the newest AHN3 units/index file&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s2">&quot;https://geodata.nationaalgeoregister.nl/ahn3/wfs?SERVICE=WFS&amp;VERSION=1.0.0&amp;REQUEST=GetFeature&amp;outputFormat=application/json&amp;TYPENAME=ahn3:ahn3_bladindex&amp;SRSNAME=EPSG:28992&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">url</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_file_date"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.get_file_date">[docs]</a><span class="k">def</span> <span class="nf">get_file_date</span><span class="p">(</span><span class="n">ahn_dir</span><span class="p">,</span> <span class="n">ahn_pat</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">f_date_pat</span><span class="p">,</span> <span class="n">corruptedfiles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the file creation date from a las file&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ahn_dir</span><span class="p">,</span> <span class="n">ahn_pat</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ahn_dir</span><span class="p">,</span> <span class="n">ahn_pat</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tile</span><span class="o">=</span><span class="n">t</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot format </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ahn_pat</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        
+    <span class="c1"># lasinfo is not compiled with multi-core support on godzilla</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;lasinfo&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;-nc&#39;</span><span class="p">],</span> 
+                           <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> 
+                           <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="c1"># by default LAStools outputs everything to stderr instead of stdout</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">check</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">getpreferredencoding</span><span class="p">(</span><span class="n">do_setlocale</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">if</span> <span class="s2">&quot;ERROR&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Tile with error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">corruptedfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># append file creation date to AHN index</span>
+        <span class="n">f_date</span> <span class="o">=</span> <span class="n">f_date_pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">day_len</span> <span class="o">=</span> <span class="n">f_date</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">day_len</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="n">f_date</span>
+        <span class="k">elif</span> <span class="n">day_len</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="n">f_date</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">f_date</span>
+        <span class="c1"># strftime needs zero-padding for day-of-the-year</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span> <span class="s1">&#39;/CET&#39;</span><span class="p">,</span> <span class="s1">&#39;%j/%Y/%Z&#39;</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">d</span></div>
+
+
+<div class="viewcode-block" id="download"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.download">[docs]</a><span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">ahn3_dir</span><span class="p">,</span> <span class="n">ahn2_dir</span><span class="p">,</span> <span class="n">tile_index_file</span><span class="p">,</span> <span class="n">ahn3_file_pat</span><span class="p">,</span> <span class="n">ahn2_file_pat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update the AHN3 files in the provided folder</span>
+
+<span class="sd">    1. Downloads the latest AHN3 index (bladindex) to the local file system</span>
+<span class="sd">    2. Downloads all AHN3 tiles that are not in the provided directory and checks them for error with lasinfo (without parsing the points).</span>
+<span class="sd">    3. Appends the &#39;file creation date&#39; attribute of the LAZ file to the AHN index.</span>
+<span class="sd">    4. If an AHN3 file is not available, marks the tile as AHN2 and add the date of the AHN2 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ahn3_dir: path to the directory for the AHN3 files</span>
+<span class="sd">    ahn2_dir: path to the directory for the AHN2 files</span>
+<span class="sd">    tile_index_file: path for the AHN tile index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;download() </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">ahn3_dir</span><span class="p">,</span> <span class="n">ahn2_dir</span><span class="p">,</span> <span class="n">tile_index_file</span><span class="p">,</span> <span class="n">ahn3_file_pat</span><span class="p">,</span> <span class="n">ahn2_file_pat</span><span class="p">))</span>
+    
+    <span class="n">f_idx</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">tile_index_file</span><span class="p">)</span>
+
+    <span class="c1"># Get AHN3 index</span>
+    <span class="n">j_in</span> <span class="o">=</span> <span class="n">download_ahn_index</span><span class="p">()</span>
+    <span class="n">has_data_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ahn_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">tile</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;bladnr&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">])}</span>
+    <span class="c1"># how many AHN3 tiles are available</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">tile</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;has_data&#39;</span><span class="p">]:</span>
+            <span class="n">has_data_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c1"># Parse download URLs</span>
+    <span class="n">ahn_pat</span> <span class="o">=</span> <span class="n">ahn3_file_pat</span>
+    <span class="n">ahn2_pat</span> <span class="o">=</span> <span class="n">ahn2_file_pat</span> <span class="c1"># in /data/pointcloud/AHN2/uitgefiltered</span>
+    <span class="n">f_date_pat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?&lt;=\sfile creation day/year:).*&quot;</span><span class="p">,</span> 
+                            <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">&amp;</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_laz/C_</span><span class="si">{}</span><span class="s2">.LAZ&quot;</span>
+    
+    <span class="n">downloaded</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ahn2_files</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">corruptedfiles</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">ahn_idx</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Downloading file # </span><span class="si">%s</span><span class="s2"> out of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ahn_idx</span><span class="p">)))</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wget&#39;</span><span class="p">,</span> <span class="s1">&#39;-nc&#39;</span><span class="p">,</span> <span class="s1">&#39;-P&#39;</span><span class="p">,</span> <span class="n">ahn3_dir</span><span class="p">,</span> <span class="n">url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">dl</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span>
+                            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">dl</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">getpreferredencoding</span><span class="p">(</span><span class="n">do_setlocale</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">&quot;already there&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">add_date</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">dl</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">add_date</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">dl</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">downloaded</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">add_date</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">add_date</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">get_file_date</span><span class="p">(</span><span class="n">ahn3_dir</span><span class="p">,</span> <span class="n">ahn_pat</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">f_date_pat</span><span class="p">,</span> <span class="n">corruptedfiles</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;file_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;ahn_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">add_date</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;has_data&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tile </span><span class="si">%s</span><span class="s2"> is not available, but marked as such. Correcting tile index...&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;has_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;file_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;ahn_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;AHN2 tile: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">ahn2_files</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">get_file_date</span><span class="p">(</span><span class="n">ahn2_dir</span><span class="p">,</span> <span class="n">ahn2_pat</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">f_date_pat</span><span class="p">,</span> <span class="n">corruptedfiles</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;file_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="n">j_in</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;ahn_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;ls -l&quot;</span><span class="p">,</span> <span class="n">ahn3_dir</span><span class="p">,</span> <span class="s2">&quot;| wc -l&quot;</span><span class="p">])</span>
+    <span class="n">dl</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dl</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">locale</span><span class="o">.</span><span class="n">getpreferredencoding</span><span class="p">(</span><span class="n">do_setlocale</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+    <span class="n">file_count</span> <span class="o">=</span> <span class="n">out</span><span class="o">-</span><span class="mi">1</span> <span class="c1"># because the log of this script is also stored in the dir</span>
+    
+    <span class="c1"># set serial integer ID field</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">update_json_id</span><span class="p">(</span><span class="n">j_in</span><span class="p">)</span>
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_idx</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloaded </span><span class="si">%s</span><span class="s2"> files&quot;</span><span class="p">,</span> <span class="n">downloaded</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> files are corrupted&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">corruptedfiles</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Corrupted files: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">corruptedfiles</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Nr. AHN3 files in dir: </span><span class="si">%s</span><span class="s2">; Nr. AHN3 tiles available: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file_count</span><span class="p">,</span> <span class="n">has_data_cnt</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Nr. AHN2 files required: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ahn2_files</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="downloader"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.downloader">[docs]</a><span class="k">def</span> <span class="nf">downloader</span><span class="p">(</span><span class="n">tile_list</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">dir_out</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">fout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_out</span><span class="p">,</span> <span class="s1">&#39;tile&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tile_list</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wget&#39;</span><span class="p">,</span> <span class="s1">&#39;-nc&#39;</span><span class="p">,</span> <span class="s1">&#39;-P&#39;</span><span class="p">,</span> <span class="n">dir_out</span><span class="p">,</span> <span class="n">url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tile</span><span class="p">),</span> <span class="s1">&#39;-O&#39;</span><span class="p">,</span> <span class="n">fout</span><span class="p">]</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unzip&#39;</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">fout</span><span class="p">,</span> <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="n">dir_out</span><span class="p">]</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rm&#39;</span><span class="p">,</span> <span class="n">fout</span><span class="p">]</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloaded </span><span class="si">%s</span><span class="s2"> tiles&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tile_list</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download_raster"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.download_raster">[docs]</a><span class="k">def</span> <span class="nf">download_raster</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ahn2_rast_dir</span><span class="p">,</span> <span class="n">ahn3_rast_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="s2">&quot;wget https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_05m_dsm/R_37HN1.ZIP -O tile &amp;&amp; unzip -o tile &amp;&amp; rm tile&quot;</span>
+    
+    <span class="n">tbl_schema</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">]</span>
+    <span class="n">tbl_tile</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;unit_name&#39;</span><span class="p">]</span>
+    <span class="n">border_table</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;border_table&#39;</span><span class="p">]</span>
+    
+    <span class="n">ahn2_url</span> <span class="o">=</span> <span class="s2">&quot;http://geodata.nationaalgeoregister.nl/ahn2/extract/ahn2_05m_ruw/r</span><span class="si">{}</span><span class="s2">.tif.zip&quot;</span>
+    <span class="n">ahn3_url</span> <span class="o">=</span> <span class="s2">&quot;https://geodata.nationaalgeoregister.nl/ahn3/extract/ahn3_05m_dsm/R_</span><span class="si">{}</span><span class="s2">.ZIP&quot;</span>
+    
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">ahn2_rast_dir</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">ahn3_rast_dir</span><span class="p">)</span>
+    
+    <span class="n">bt</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">get_non_border_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">tbl_schema</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">,</span> 
+                                     <span class="n">border_table</span><span class="p">,</span> <span class="n">tbl_tile</span><span class="p">)</span>
+    <span class="n">ahn2_tiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">bt</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">ahn3_tiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">bt</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="n">downloader</span><span class="p">(</span><span class="n">ahn2_tiles</span><span class="p">,</span> <span class="n">ahn2_url</span><span class="p">,</span> <span class="n">ahn2_rast_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="p">)</span>
+    <span class="n">downloader</span><span class="p">(</span><span class="n">ahn3_tiles</span><span class="p">,</span> <span class="n">ahn3_url</span><span class="p">,</span> <span class="n">ahn3_rast_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rast_file_idx"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.rast_file_idx">[docs]</a><span class="k">def</span> <span class="nf">rast_file_idx</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ahn2_rast_dir</span><span class="p">,</span> <span class="n">ahn3_rast_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an index of tiles and AHN raster files</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ahn2_rast_dir : str</span>
+<span class="sd">        Path to the directory of the AHN2 raster files</span>
+<span class="sd">    ahn3_rast_dir : str</span>
+<span class="sd">        Path to the directory of the AHN3 raster files</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        {tile ID : path to raster file}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">ahn2_rast_dir</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">ahn3_rast_dir</span><span class="p">)</span>
+    <span class="n">ahn2_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">ahn2_rast_dir</span><span class="p">)</span>
+    <span class="n">ahn3_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">ahn3_rast_dir</span><span class="p">)</span>
+    
+    <span class="n">tbl_schema</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+    <span class="n">tbl_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">]</span>
+    <span class="n">tbl_tile</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;unit_name&#39;</span><span class="p">]</span>
+    <span class="n">border_table</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_index&quot;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;border_table&#39;</span><span class="p">]</span>
+    <span class="n">bt</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">get_non_border_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">tbl_schema</span><span class="p">,</span> <span class="n">tbl_name</span><span class="p">,</span> 
+                                     <span class="n">border_table</span><span class="p">,</span> <span class="n">tbl_tile</span><span class="p">)</span>
+    <span class="n">ahn2_tiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">bt</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">ahn3_tiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">bt</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="n">file_idx</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">ahn2_tiles</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="s2">&quot;r</span><span class="si">{}</span><span class="s2">.tif&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">ahn2_files</span><span class="p">:</span>
+            <span class="n">file_idx</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ahn2_rast_dir</span><span class="p">,</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">ahn3_tiles</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="s2">&quot;r_</span><span class="si">{}</span><span class="s2">.tif&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">ahn3_files</span><span class="p">:</span>
+            <span class="n">file_idx</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ahn3_rast_dir</span><span class="p">,</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">file_idx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_idx</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

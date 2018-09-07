@@ -1,0 +1,1188 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.config package &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>bag3d.config package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_modules/bag3d.config.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bag3d-config-package">
+<h1>bag3d.config package<a class="headerlink" href="#bag3d-config-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bag3d.config.args">
+<span id="bag3d-config-args-module"></span><h2>bag3d.config.args module<a class="headerlink" href="#module-bag3d.config.args" title="Permalink to this headline">¶</a></h2>
+<p>Parse arguments and configuration file</p>
+<dl class="function">
+<dt id="bag3d.config.args.add_abspath">
+<code class="descclassname">bag3d.config.args.</code><code class="descname">add_abspath</code><span class="sig-paren">(</span><em>dirs</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/args.html#add_abspath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.args.add_abspath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively append the absolute path to the paths in a nested list</p>
+<p>If not a list, returns the string with absolute path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dirs</strong> (<em>list of strings</em><em>, or </em><em>string</em>) – List of directory paths</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of absolute paths</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.args.parse_config">
+<code class="descclassname">bag3d.config.args.</code><code class="descname">parse_config</code><span class="sig-paren">(</span><em>args_in</em>, <em>schema</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/args.html#parse_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.args.parse_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the configuration file</p>
+<p>Validates the config file and checks a few values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>args_in</strong> (<em>dict</em>) – Output of config.parse_console_args()</li>
+<li><strong>schema</strong> (<em>str</em>) – Path to the config file schema</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The configuration parameters</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.args.parse_console_args">
+<code class="descclassname">bag3d.config.args.</code><code class="descname">parse_console_args</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/args.html#parse_console_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.args.parse_console_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<em>list</em>) – The list of command line arguments passed to bag3d.app.py</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The stored argument values</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.args.validate_config">
+<code class="descclassname">bag3d.config.args.</code><code class="descname">validate_config</code><span class="sig-paren">(</span><em>config</em>, <em>schema</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/args.html#validate_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.args.validate_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the configuration file against the schema</p>
+<p>The schema is located in bag3d/bag3d_cfg_schema.yml</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config</strong> (<em>str</em>) – Path to the configuration file</li>
+<li><strong>schema</strong> (<em>str</em>) – Path to the schema</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileNotFoundError</span></code> – If the schema is not found</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">PyKwalifyException</span></code> – If the config file is not valid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.config.batch3dfier">
+<span id="bag3d-config-batch3dfier-module"></span><h2>bag3d.config.batch3dfier module<a class="headerlink" href="#module-bag3d.config.batch3dfier" title="Permalink to this headline">¶</a></h2>
+<p>Configure batch3dfier with the input data.</p>
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.call_3dfier">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">call_3dfier</code><span class="sig-paren">(</span><em>db</em>, <em>tile</em>, <em>schema_tiles</em>, <em>table_index_pc</em>, <em>fields_index_pc</em>, <em>idx_identical</em>, <em>table_index_footprint</em>, <em>fields_index_footprint</em>, <em>uniqueid</em>, <em>extent_ewkb</em>, <em>clip_prefix</em>, <em>prefix_tile_footprint</em>, <em>yml_dir</em>, <em>tile_out</em>, <em>output_format</em>, <em>output_dir</em>, <em>path_3dfier</em>, <em>thread</em>, <em>pc_file_index</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#call_3dfier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.call_3dfier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call 3dfier with the YAML config created by yamlr().</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For the rest of the parameters see batch3dfier_config.yml.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>tile</strong> (<em>str</em>) – Name of of the 2D tile.</li>
+<li><strong>schema_tiles</strong> (<em>str</em>) – Schema of the footprint tiles.</li>
+<li><strong>thread</strong> (<em>str</em>) – Name/ID of the active thread.</li>
+<li><strong>extent_ewkb</strong> (<em>str</em>) – EWKB representation of ‘extent’ in batch3dfier_config.yml.</li>
+<li><strong>clip_prefix</strong> (<em>str</em>) – Prefix for naming the clipped/united views. This value shouldn’t be a substring of the pointcloud file names.</li>
+<li><strong>prefix_tile_footprint</strong> (<em>str</em><em> or </em><em>None</em>) – Prefix prepended to the footprint tile view names. If None, the views are named as
+the values in fields_index_fooptrint[‘unit_name’].</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The tiles that are skipped because no corresponding pointcloud file
+was found in ‘dataset_dir’ (YAML)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.clip_2Dtiles">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">clip_2Dtiles</code><span class="sig-paren">(</span><em>db</em>, <em>user_schema</em>, <em>schema_tiles</em>, <em>tiles</em>, <em>poly</em>, <em>clip_prefix</em>, <em>fields_view</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#clip_2Dtiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.clip_2Dtiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates views for the clipped tiles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>user_schema</strong> (<em>str</em>) – </li>
+<li><strong>schema_tiles</strong> (<em>str</em>) – </li>
+<li><strong>tiles</strong> (<em>list</em>) – </li>
+<li><strong>poly</strong> (<em>Shapely polygon</em>) – </li>
+<li><strong>clip_prefix</strong> (<em>str</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Name of the views of the clipped tiles.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.configure_tiles">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">configure_tiles</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>clip_prefix</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#configure_tiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.configure_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the tile list based on the input parameter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – bag3d configuration</li>
+<li><strong>clip_prefix</strong> (<em>str</em>) – Prefix to prepend to VIEW names when an extent is used</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The configuration with the configured tile list. The following elements
+are added to the config:
+- <cite>clip_prefix</cite> :
+- <cite>tile_out</cite> : name of the tile
+- extent_ewkb : ewkb of the extent polygon
+- tile_list is overwritten, either based on the provided extent or
+the provided tile names are substituted with the names of the tile
+views in input_polygons:tile_schema</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.drop_2Dtiles">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">drop_2Dtiles</code><span class="sig-paren">(</span><em>db</em>, <em>user_schema</em>, <em>views_to_drop</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#drop_2Dtiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.drop_2Dtiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops Views in a given schema.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Used for dropping the views created by clip_2Dtiles() and union_2Dtiles().</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>user_schema</strong> (<em>str</em>) – </li>
+<li><strong>views_to_drop</strong> (<em>list</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.extent_to_ewkb">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">extent_to_ewkb</code><span class="sig-paren">(</span><em>db</em>, <em>table_index</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#extent_to_ewkb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.extent_to_ewkb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a polygon from a file and returns its EWKB.</p>
+<p>I didn’t find a simple way to safely get SRIDs from the input geometry
+with Shapely, therefore it is obtained from the database and the CRS of the
+polygon is assumed to be the same as of the tile indexes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>table_index</strong> (<em>dict</em>) – {‘schema’ : str, ‘table’ : str} of the table of tile index.</li>
+<li><strong>file</strong> (<em>str</em>) – Path to the polygon for clipping the input.
+Must be in the same CRS as the table_index.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[Shapely polygon, EWKB str]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.find_pc_tiles">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">find_pc_tiles</code><span class="sig-paren">(</span><em>conn</em>, <em>table_index_pc</em>, <em>fields_index_pc</em>, <em>idx_identical</em>, <em>table_index_footprint=None</em>, <em>fields_index_footprint=None</em>, <em>extent_ewkb=None</em>, <em>tile_footprint=None</em>, <em>prefix_tile_footprint=None</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#find_pc_tiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.find_pc_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find point cloud tiles in tile index that intersect the extent or the footprint tile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>prefix_tile_footprint</strong> (<em>str</em><em> or </em><em>None</em>) – Prefix prepended to the footprint tile view names. If None, the views are named as
+the values in fields_index_fooptrint[‘unit_name’].</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Contains the AHN tile name as key, the AHN version of the tile as value
+Eg. {‘37hn1’: 3, ‘37hz1’: 2}</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.get_2Dtile_area">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">get_2Dtile_area</code><span class="sig-paren">(</span><em>db</em>, <em>table_index</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#get_2Dtile_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.get_2Dtile_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the area of a 2D tile.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Assumes that all tiles have equal area. Area is in units of the tile CRS.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>table_index</strong> (<em>list of str</em>) – {‘schema’ : str, ‘table’ : str} of the table of tile index.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Area of a tile</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.get_2Dtile_views">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">get_2Dtile_views</code><span class="sig-paren">(</span><em>db</em>, <em>schema_tiles</em>, <em>tiles</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#get_2Dtile_views"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.get_2Dtile_views" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get View names of the 2D tiles. It tries to find views in schema_tiles
+that contain the respective tile ID in their name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>schema_tiles</strong> (<em>str</em>) – Name of the schema where the 2D tile views are stored.</li>
+<li><strong>tiles</strong> (<em>list</em>) – Tile IDs</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Name of the view that contain the tile ID as substring.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.get_2Dtiles">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">get_2Dtiles</code><span class="sig-paren">(</span><em>db</em>, <em>table_index</em>, <em>fields_index</em>, <em>ewkb</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#get_2Dtiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.get_2Dtiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of tiles that overlap the output extent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>table_index</strong> (<em>dict</em>) – {‘schema’ : str, ‘table’ : str} of the table of tile index.</li>
+<li><strong>fields_index</strong> (<em>dict</em>) – {‘primary_key’ : str, ‘geometry’ : str, ‘unit_name’ : str}
+primary_key: Name of the primary_key field in table_index.
+geometry: Name of the geometry field in table_index.
+unit: Name of the field in table_index that contains the index unit names.</li>
+<li><strong>ewkb</strong> (<em>str</em>) – EWKB representation of a polygon.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tiles that are intersected by the polygon that is provided in ‘extent’ (YAML).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[tile IDs]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.get_view_fields">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">get_view_fields</code><span class="sig-paren">(</span><em>db</em>, <em>user_schema</em>, <em>tile_views</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#get_view_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.get_view_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the fields in a 2D tile view</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tile_views</strong> (<em>list of str</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{‘all’ : list, ‘geometry’ : str}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.parse_sql_select_fields">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">parse_sql_select_fields</code><span class="sig-paren">(</span><em>table</em>, <em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#parse_sql_select_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.parse_sql_select_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a list of field names into “table”.”field” to insert into a SELECT … FROM table</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fields</strong> (<em>list of str</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">psycopg2.sql.Composable</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.pc_file_index">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">pc_file_index</code><span class="sig-paren">(</span><em>pc_name_map</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#pc_file_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.pc_file_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an index table of the pointcloud files in the given directories</p>
+<p>Maps the location of the point cloud files to the point cloud tile IDs/names.
+The order of priority for the files is determined by the order in
+‘input_elevation: dataset_dir’
+And therefore, if given 5 directories [A, [B, C, D], E], their priority
+is [1, [2, 2, 2], 3]. Where a lower number means higher priority. Thus if a
+tile (‘3a’) has matching files (B/c3a.laz, C/B_3A.laz, D/o-3a.laz, E/a_3a.laz)
+in multiple directories (B, C, D, E), then the file in the directory with
+the higher priority is selected over that of lower priority. In this case
+the file E/a_3a.laz is disregarded. If directories are given in a sublist, such
+as B, C, D, then they have equal priority. Thus if a tile has a matching
+file in more than one of these directories, then <em>all</em> of the files are used
+(B/c3a.laz, C/B_3A.laz, D/o-3a.laz).</p>
+<p>Tile name and file name matching is case insensitive. Furthermore, the match
+is governed by the file name patterns provided in ‘input_elevation: dataset_name’.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Nested priority eg [1, [2, 2, 2], 3] is not used currently, because
+3dfier doesn’t consider vertically split point clouds.
+See <a class="reference external" href="https://github.com/tudelft3d/3dfier/issues/61">Issue #61</a></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{pc_tile_name: [path/to/pc_file1, path/to/pc_file2, …]}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.pc_name_dict">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">pc_name_dict</code><span class="sig-paren">(</span><em>pc_dir</em>, <em>dataset_name</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#pc_name_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.pc_name_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map dataset_dir to dataset_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dataset_dir mapped to dataset_name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.union_2Dtiles">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">union_2Dtiles</code><span class="sig-paren">(</span><em>db</em>, <em>user_schema</em>, <em>tiles_clipped</em>, <em>clip_prefix</em>, <em>fields_view</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#union_2Dtiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.union_2Dtiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Union the clipped tiles into a single view.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>user_schema</strong> (<em>str</em>) – </li>
+<li><strong>tiles_clipped</strong> (<em>list</em>) – </li>
+<li><strong>clip_prefix</strong> (<em>str</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Name of the united view.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.batch3dfier.yamlr">
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">yamlr</code><span class="sig-paren">(</span><em>dbname</em>, <em>host</em>, <em>user</em>, <em>pw</em>, <em>schema_tiles</em>, <em>bag_tile</em>, <em>pc_path</em>, <em>uniqueid</em>, <em>ahn_version</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#yamlr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.yamlr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the YAML config file for 3dfier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ahn_version</strong> (<em>set</em>) – Version of the latest available AHN point cloud for the current tile</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the YAML config file for 3dfier</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.config.border">
+<span id="bag3d-config-border-module"></span><h2>bag3d.config.border module<a class="headerlink" href="#module-bag3d.config.border" title="Permalink to this headline">¶</a></h2>
+<p>Configure the batch3dfier processes for the tiles on AHN2 and AHN3 border</p>
+<dl class="function">
+<dt id="bag3d.config.border.create_border_table">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">create_border_table</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#create_border_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.create_border_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the table tile_index:elevation:border_table in the database</p>
+<p>The table tile_index:elevation:border_table a subset of tile index with
+the tiles on the border of AHN3 coverage.
+AHN3 does not cover the whole Netherlands, AHN2 does. The tiles on the
+border of AHN3 coverage only partially contain points, clipped at natural
+boundaries (eg a river). Therefore these tiles need to be identified and
+processed separately.</p>
+<p>If border_table exists, it will drop it first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – bag3d configuration parameters</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Creates the table tile_index:elevation:border_table in the database</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.get_border_tiles">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">get_border_tiles</code><span class="sig-paren">(</span><em>conn</em>, <em>tbl_schema</em>, <em>border_table</em>, <em>tbl_tile</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#get_border_tiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.get_border_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the border tile names as a list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>tbl_schema</strong> (<em>str</em>) – The value of tile_index:elevation:schema</li>
+<li><strong>border_table</strong> (<em>str</em>) – The value of tile_index:elevation:border_table</li>
+<li><strong>tbl_tile</strong> (<em>str</em>) – The value of tile_index:elevation:fields:unit_name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of tile names that are on the border of AHN3 and AHN2 coverage</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.get_non_border_tiles">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">get_non_border_tiles</code><span class="sig-paren">(</span><em>conn</em>, <em>tbl_schema</em>, <em>tbl_name</em>, <em>border_table</em>, <em>tbl_tile</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#get_non_border_tiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.get_non_border_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the non-border tile names and ahn_version</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>tbl_schema</strong> (<em>str</em>) – The value of tile_index:elevation:schema</li>
+<li><strong>tbl_name</strong> (<em>str</em>) – The value of tile_index:elevation:table</li>
+<li><strong>border_table</strong> (<em>str</em>) – The value of tile_index:elevation:border_table</li>
+<li><strong>tbl_tile</strong> (<em>str</em>) – The value of tile_index:elevation:fields:unit_name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of tuples of (tile ID, ahn_version) that are not on the border of AHN3 and AHN2 coverage</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.process">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">process</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>ahn3_dir</em>, <em>ahn2_dir</em>, <em>export=False</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates configurations for processing the border tiles</p>
+<p>For every configuration, updates config:in to the relevant path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – bag3d configuration parameters</li>
+<li><strong>ahn3_dir</strong> (<em>str</em>) – Path to the AHN3 files. Such as in input_elevation:dataset_dir</li>
+<li><strong>ahn2_dir</strong> (<em>str</em>) – Path to the AHN2 files. Such as in input_elevation:dataset_dir</li>
+<li><strong>export</strong> (<em>bool</em>) – Write the created configurations to files. The output directory is
+where the original config file is located</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of the updated configurations in this order:
+1. Config for the non-border tiles
+2. Config for the border tiles with AHN2 data
+3. Config for the border tiles with AHN3 data</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.update_file_date">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">update_file_date</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>ahn2_dir</em>, <em>ahn2_fp</em>, <em>doexec=True</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#update_file_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.update_file_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the file_date field in the border_tiles table</p>
+<p>Operates on the AHN-tile index in a BAG database. The result is a new AHN tile index
+with only those tiles that are on the border of the AHN3 and AHN2 version. These
+tiles are marked as AHN2 with AHN2 file creation date.</p>
+<p>The border tiles only partially contain AHN3 data, therefore they need to be
+extended with AHN2 data, resulting in a 3D BAG tile with mixed AHN2-3 heights.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>conn</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – Open connection</li>
+<li><strong>config</strong> (<em>dict</em>) – bag3d configuration parameters</li>
+<li><strong>ahn2_dir</strong> (<em>str</em>) – Path to the AHN2 files. Such as in input_elevation:dataset_dir</li>
+<li><strong>ahn2_fp</strong> (<em>str</em>) – The filename pattern of AHN2 files. Such as in input_elevation:dataset_name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Updates the tile_index:elevation:border_table in the database</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.update_output">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">update_output</code><span class="sig-paren">(</span><em>cfg</em>, <em>ahn_version</em>, <em>ahn_dir</em>, <em>border_table</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#update_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.update_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the output parameters in the config file for processing border tiles</p>
+<p>Assumes that input_elevation:dataset_dir has at least 2 entries, one of
+them is the AHN2 directory.
+Updates the tile_index:elevation:table so that AHN2 tiles use the
+border_tiles index, and AHN3 tiles use the normal AHN tile index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cfg</strong> (<em>dict</em>) – bag3d configuration parameters</li>
+<li><strong>ahn_version</strong> (<em>int</em>) – Version of AHN</li>
+<li><strong>ahn_dir</strong> (<em>str</em>) – Path to AHN files</li>
+<li><strong>border_table</strong> (<em>str</em>) – Name of the border table</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The updated configuration</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.update_tile_list">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">update_tile_list</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>tile_list</em>, <em>ahn_version=None</em>, <em>ahn_dir=None</em>, <em>border_table=None</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#update_tile_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.update_tile_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the tile_list in the config</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config</strong> (<em>dict</em>) – bag3d configuration parameters</li>
+<li><strong>tile_list</strong> (<em>list</em>) – List of tiles to process</li>
+<li><strong>ahn_version</strong> (<em>int</em>) – Version of AHN</li>
+<li><strong>ahn_dir</strong> (<em>str</em>) – Path to AHN files</li>
+<li><strong>border_table</strong> (<em>str</em>) – Name of the border table</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The updated configuration</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.border.write_yml">
+<code class="descclassname">bag3d.config.border.</code><code class="descname">write_yml</code><span class="sig-paren">(</span><em>yml</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/border.html#write_yml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.border.write_yml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write YAML config to file</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.config.db">
+<span id="bag3d-config-db-module"></span><h2>bag3d.config.db module<a class="headerlink" href="#module-bag3d.config.db" title="Permalink to this headline">¶</a></h2>
+<p>Database connection class.</p>
+<dl class="class">
+<dt id="bag3d.config.db.db">
+<em class="property">class </em><code class="descclassname">bag3d.config.db.</code><code class="descname">db</code><span class="sig-paren">(</span><em>dbname</em>, <em>host</em>, <em>port</em>, <em>user</em>, <em>password=None</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A database connection class</p>
+<dl class="method">
+<dt id="bag3d.config.db.db.check_postgis">
+<code class="descname">check_postgis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.check_postgis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.check_postgis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the PostGIS extension if not exitst</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close connection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.getQuery">
+<code class="descname">getQuery</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.getQuery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.getQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>DB query where the results need to return (e.g. SELECT)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<em>str</em>) – SQL query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">psycopg2 resultset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.get_dict">
+<code class="descname">get_dict</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.get_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.get_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>DB query where the results need to return as a dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<em>str</em>) – SQL query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">psycopg2 resultset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.get_fields">
+<code class="descname">get_fields</code><span class="sig-paren">(</span><em>schema</em>, <em>table</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.get_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.get_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the fields in a table</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.print_query">
+<code class="descname">print_query</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.print_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.print_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a SQL query for printing by replacing newlines and tab-spaces</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.sendQuery">
+<code class="descname">sendQuery</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.sendQuery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.sendQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a query to the DB when no results need to return (e.g. CREATE)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<em>str</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.vacuum">
+<code class="descname">vacuum</code><span class="sig-paren">(</span><em>schema</em>, <em>table</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.vacuum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.vacuum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vacuum analyze a table</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>schema</strong> (<em>str</em>) – schema name</li>
+<li><strong>table</strong> (<em>str</em>) – table name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bag3d.config.db.db.vacuum_full">
+<code class="descname">vacuum_full</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/db.html#db.vacuum_full"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.db.db.vacuum_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vacuum analyze the whole database</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.config.footprints">
+<span id="bag3d-config-footprints-module"></span><h2>bag3d.config.footprints module<a class="headerlink" href="#module-bag3d.config.footprints" title="Permalink to this headline">¶</a></h2>
+<p>Batch create views for the 2D(BAG) tiles.</p>
+<p>The module helps you to create tiles in a BAG (<a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">https://www.kadaster.nl/wat-is-de-bag</a>)
+database. These tiles are then used by batch3dfier.</p>
+<dl class="function">
+<dt id="bag3d.config.footprints.create_centroids">
+<code class="descclassname">bag3d.config.footprints.</code><code class="descname">create_centroids</code><span class="sig-paren">(</span><em>db</em>, <em>table_centroid</em>, <em>table_footprint</em>, <em>fields_footprint</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/footprints.html#create_centroids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.footprints.create_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a table of footprint centroids.</p>
+<p>The table_centroid is then used by bagtiler().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – </li>
+<li><strong>table_centroid</strong> (<em>list of str</em>) – [schema, table] for the new relation that contains the footprint centroids.</li>
+<li><strong>table_footprint</strong> (<em>list of str</em>) – [schema, table] of the footprints (e.g. building footprints) that will be extruded.</li>
+<li><strong>fields_footprint</strong> (<em>list of str</em>) – [ID, geometry] field names of the ID geometry fields in table_footprint.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.footprints.create_views">
+<code class="descclassname">bag3d.config.footprints.</code><code class="descname">create_views</code><span class="sig-paren">(</span><em>db</em>, <em>schema_tiles</em>, <em>table_index</em>, <em>fields_index</em>, <em>table_centroid</em>, <em>fields_centroid</em>, <em>table_footprint</em>, <em>fields_footprint</em>, <em>prefix_tiles='t_'</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/footprints.html#create_views"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.footprints.create_views" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates PostgreSQL Views for the footprint tiles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – </li>
+<li><strong>schema_tiles</strong> (<em>str</em>) – Name of the schema where to create the footprint tiles.</li>
+<li><strong>table_index</strong> (<em>list of str</em>) – [schema, table] of the tile index.</li>
+<li><strong>fields_index</strong> (<em>list of str</em>) – [ID, geometry, unit]
+ID: Name of the ID field.
+geometry: Name of the geometry field.
+unit: Name of the field in table_index that contains the index unit names.
+These values are used for the tile names in schema_tiles.</li>
+<li><strong>table_centroid</strong> (<em>list of str</em>) – [schema, table] of the footprint centroids.</li>
+<li><strong>fields_centroid</strong> (<em>list of str</em>) – [ID, geometry]
+Name of the ID field in table_centroid that can be joined on table_footprint.
+There must be an identical value in fields_footprint.
+Name of the geometry field.</li>
+<li><strong>table_footprint</strong> (<em>list of str</em>) – [schema, table] of the footprints (e.g. building footprints) that will be extruded.</li>
+<li><strong>fields_footprint</strong> (<em>list of str</em>) – [ID, geometry, …]
+Names of the fields that should be selected into the View. Must contain
+at least an ID and a geometry field, where ID is the field that can be joined on
+table_centroid.</li>
+<li><strong>prefix_tiles</strong> (<em>str</em><em> or </em><em>None</em>) – Prefix to prepend to the view names. If None, the views are named as
+the values in fields_index.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.footprints.partition">
+<code class="descclassname">bag3d.config.footprints.</code><code class="descname">partition</code><span class="sig-paren">(</span><em>db</em>, <em>schema_tiles</em>, <em>table_index</em>, <em>fields_index</em>, <em>table_footprint</em>, <em>fields_footprint</em>, <em>prefix_tiles</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/footprints.html#partition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.footprints.partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partitions geometries in a 2D footprint table into tiles.</p>
+<p>Adds a geometry column to table_index.
+Creates a new table &lt;table_footprint&gt;_centroid in the schema of table_footprint.
+Creates a View for each tile in table_index, generating names from fields_index[2].</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – </li>
+<li><strong>schema_tiles</strong> (<em>str</em>) – Name of the schema where to create the tiles.</li>
+<li><strong>table_index</strong> (<em>list of str</em>) – [schema, table] of the tile index.</li>
+<li><strong>fields_index</strong> (<em>list of str</em>) – [ID, geometry, unit]
+ID: Name of the ID field.
+geometry: Name of the geometry field.
+unit: Name of the field in table_index that contains the index unit names.
+These values are used for the tile names in schema_tiles.</li>
+<li><strong>table_footprint</strong> (<em>list of str</em>) – [schema, table] of the footprints (e.g. building footprints) that will be extruded.</li>
+<li><strong>fields_footprint</strong> (<em>list of str</em>) – [ID, geometry, …]
+Names of the fields that should be selected into the View. Must contain
+at least an ID and a geometry field, where ID is the field that can be joined on
+table_centroid.</li>
+<li><strong>prefix_tiles</strong> (<em>str</em><em>, </em><em>None</em>) – Prefix to prepend to the view names. If None, the views are named as
+the values in fields_index[2].</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bag3d.config.footprints.update_tile_index">
+<code class="descclassname">bag3d.config.footprints.</code><code class="descname">update_tile_index</code><span class="sig-paren">(</span><em>db</em>, <em>table_index</em>, <em>fields_index</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/footprints.html#update_tile_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.footprints.update_tile_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the tile index to include the lower/left boundary of each polygon.</p>
+<p>The function is mainly relevant for the tile index of the footprints.
+The tile edges are then used for checking centroid containment in a tile polygon.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> (<a class="reference internal" href="#bag3d.config.db.db" title="bag3d.config.db.db"><code class="xref py py-class docutils literal notranslate"><span class="pre">bag3d.config.db.db</span></code></a>) – </li>
+<li><strong>table_index</strong> (<em>list of str</em>) – (schema, table) that contains the tile index polygons.</li>
+<li><strong>fields_index</strong> (<em>list of str</em>) – [ID, geometry, unit] field names of the ID, geometry, tile unit name fields in table_index.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bag3d.config">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bag3d.config" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

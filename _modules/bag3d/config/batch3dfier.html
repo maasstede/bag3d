@@ -1,0 +1,1083 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.config.batch3dfier &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.config.batch3dfier</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.config.batch3dfier</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Configure batch3dfier with the input data.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pformat</span>
+
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="k">import</span> <span class="n">shape</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="k">import</span> <span class="n">geos</span>
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="k">import</span> <span class="n">sql</span>
+<span class="kn">import</span> <span class="nn">fiona</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">bag3d.update</span> <span class="k">import</span> <span class="n">bag</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;config.batch3dfier&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="call_3dfier"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.call_3dfier">[docs]</a><span class="k">def</span> <span class="nf">call_3dfier</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">tile</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span>
+                <span class="n">table_index_pc</span><span class="p">,</span> <span class="n">fields_index_pc</span><span class="p">,</span> <span class="n">idx_identical</span><span class="p">,</span>
+                <span class="n">table_index_footprint</span><span class="p">,</span> <span class="n">fields_index_footprint</span><span class="p">,</span> <span class="n">uniqueid</span><span class="p">,</span>
+                <span class="n">extent_ewkb</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">,</span> <span class="n">prefix_tile_footprint</span><span class="p">,</span>
+                <span class="n">yml_dir</span><span class="p">,</span> <span class="n">tile_out</span><span class="p">,</span> <span class="n">output_format</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">path_3dfier</span><span class="p">,</span> <span class="n">thread</span><span class="p">,</span>
+                <span class="n">pc_file_index</span><span class="p">,</span>
+                <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call 3dfier with the YAML config created by yamlr().</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    For the rest of the parameters see batch3dfier_config.yml.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    tile : str</span>
+<span class="sd">        Name of of the 2D tile.</span>
+<span class="sd">    schema_tiles : str</span>
+<span class="sd">        Schema of the footprint tiles.</span>
+<span class="sd">    thread : str</span>
+<span class="sd">        Name/ID of the active thread.</span>
+<span class="sd">    extent_ewkb : str</span>
+<span class="sd">        EWKB representation of &#39;extent&#39; in batch3dfier_config.yml.</span>
+<span class="sd">    clip_prefix : str</span>
+<span class="sd">        Prefix for naming the clipped/united views. This value shouldn&#39;t be a substring of the pointcloud file names.</span>
+<span class="sd">    prefix_tile_footprint : str or None</span>
+<span class="sd">        Prefix prepended to the footprint tile view names. If None, the views are named as</span>
+<span class="sd">        the values in fields_index_fooptrint[&#39;unit_name&#39;].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        The tiles that are skipped because no corresponding pointcloud file</span>
+<span class="sd">        was found in &#39;dataset_dir&#39; (YAML)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tiles</span> <span class="o">=</span> <span class="n">find_pc_tiles</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_index_pc</span><span class="p">,</span> <span class="n">fields_index_pc</span><span class="p">,</span> <span class="n">idx_identical</span><span class="p">,</span>
+                             <span class="n">table_index_footprint</span><span class="p">,</span> <span class="n">fields_index_footprint</span><span class="p">,</span>
+                             <span class="n">extent_ewkb</span><span class="p">,</span> <span class="n">tile_footprint</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span>
+                             <span class="n">prefix_tile_footprint</span><span class="o">=</span><span class="n">prefix_tile_footprint</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">pc_file_index</span><span class="p">[</span><span class="n">tile</span><span class="p">]</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">pc_file_index</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">tiles</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+    <span class="n">ahn_version</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">tiles</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pc_file_index</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">tiles</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+    <span class="n">pc_path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+    <span class="c1"># prepare output file name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tile_out</span><span class="p">:</span>
+        <span class="n">tile_out</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">clip_prefix</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pc_path</span><span class="p">:</span>
+        <span class="c1"># Needs a YAML per thread so one doesn&#39;t overwrite it while the other</span>
+        <span class="c1"># uses it</span>
+        <span class="n">yml_name</span> <span class="o">=</span> <span class="n">thread</span> <span class="o">+</span> <span class="s2">&quot;_config.yml&quot;</span>
+        <span class="n">yml_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">yml_dir</span><span class="p">,</span> <span class="n">yml_name</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yamlr</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                       <span class="n">pw</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
+                       <span class="n">bag_tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> <span class="n">pc_path</span><span class="o">=</span><span class="n">pc_path</span><span class="p">,</span> <span class="n">uniqueid</span><span class="o">=</span><span class="n">uniqueid</span><span class="p">,</span>
+                       <span class="n">ahn_version</span><span class="o">=</span><span class="n">ahn_version</span><span class="p">)</span>
+        <span class="c1"># Write temporary config file</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">yml_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">text_file</span><span class="p">:</span>
+                <span class="n">text_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error: cannot write _config.yml&quot;</span><span class="p">)</span>
+        <span class="c1"># Prep output file name</span>
+        <span class="k">if</span> <span class="s2">&quot;obj&quot;</span> <span class="ow">in</span> <span class="n">output_format</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">tile_out</span> <span class="o">+</span> <span class="s2">&quot;.obj&quot;</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;csv&quot;</span> <span class="ow">in</span> <span class="n">output_format</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">tile_out</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">tile_out</span><span class="p">)</span>
+        <span class="c1"># Run 3dfier</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_3dfier</span><span class="p">,</span> <span class="n">yml_path</span><span class="p">,</span> <span class="s2">&quot;--CSV-BUILDINGS-MULTIPLE&quot;</span><span class="p">,</span> 
+                   <span class="n">output_path</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Cannot run 3dfier on tile </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tile</span><span class="p">)</span>
+            <span class="n">tile_skipped</span> <span class="o">=</span> <span class="n">tile</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pointcloud file(s) </span><span class="si">%s</span><span class="s2"> not available. Skipping tile.&quot;</span><span class="p">,</span>
+                     <span class="nb">str</span><span class="p">(</span><span class="n">tiles</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">tile_skipped</span> <span class="o">=</span> <span class="n">tile</span>
+        <span class="k">return</span><span class="p">({</span><span class="s1">&#39;tile_skipped&#39;</span><span class="p">:</span> <span class="n">tile_skipped</span><span class="p">,</span>
+                <span class="s1">&#39;out_path&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;tile_skipped&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out_path&#39;</span><span class="p">:</span> <span class="n">output_path</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="yamlr"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.yamlr">[docs]</a><span class="k">def</span> <span class="nf">yamlr</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span>
+          <span class="n">bag_tile</span><span class="p">,</span> <span class="n">pc_path</span><span class="p">,</span> <span class="n">uniqueid</span><span class="p">,</span> <span class="n">ahn_version</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the YAML config file for 3dfier.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ahn_version : set</span>
+<span class="sd">        Version of the latest available AHN point cloud for the current tile</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        the YAML config file for 3dfier</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pc_dataset</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pc_path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pc_path</span><span class="p">:</span>
+            <span class="n">pc_dataset</span> <span class="o">+=</span> <span class="s2">&quot;- &quot;</span> <span class="o">+</span> <span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;      &quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pc_dataset</span> <span class="o">+=</span> <span class="s2">&quot;- &quot;</span> <span class="o">+</span> <span class="n">pc_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># !!! Do not correct the indentation of the config template, otherwise it</span>
+    <span class="c1"># results in &#39;YAML::TypedBadConversion&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt;&#39;</span>
+    <span class="c1"># because every line is indented as here</span>
+    <span class="k">if</span> <span class="n">pw</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;PG:dbname=</span><span class="si">{dbname}</span><span class="s1"> host=</span><span class="si">{host}</span><span class="s1"> user=</span><span class="si">{user}</span><span class="s1"> password=</span><span class="si">{pw}</span><span class="s1"> schemas=</span><span class="si">{schema_tiles}</span><span class="s1"> tables=</span><span class="si">{bag_tile}</span><span class="s1">&#39;</span>
+        <span class="n">dns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span>
+               <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+               <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+               <span class="n">pw</span><span class="o">=</span><span class="n">pw</span><span class="p">,</span>
+               <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
+               <span class="n">bag_tile</span><span class="o">=</span><span class="n">bag_tile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;PG:dbname=</span><span class="si">{dbname}</span><span class="s1"> host=</span><span class="si">{host}</span><span class="s1"> user=</span><span class="si">{user}</span><span class="s1"> schemas=</span><span class="si">{schema_tiles}</span><span class="s1"> tables=</span><span class="si">{bag_tile}</span><span class="s1">&#39;</span>
+        <span class="n">dns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span>
+               <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+               <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+               <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
+               <span class="n">bag_tile</span><span class="o">=</span><span class="n">bag_tile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ahn_version</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="n">lasb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">ahn_version</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="mi">3</span><span class="p">]):</span>
+        <span class="n">lasb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">ahn_version</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]):</span>
+        <span class="n">lasb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">]</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">input_polygons:</span>
+<span class="s2">  - datasets:</span>
+<span class="s2">      - &quot;</span><span class="si">{dns}</span><span class="s2">&quot;</span>
+<span class="s2">    uniqueid: </span><span class="si">{uniqueid}</span><span class="s2"></span>
+<span class="s2">    lifting: Building</span>
+
+<span class="s2">lifting_options:</span>
+<span class="s2">  Building:</span>
+<span class="s2">    roof:</span>
+<span class="s2">      height: percentile-95</span>
+<span class="s2">      use_LAS_classes: </span><span class="si">{las_building}</span><span class="s2"></span>
+<span class="s2">    ground:</span>
+<span class="s2">      height: percentile-10</span>
+<span class="s2">      use_LAS_classes: [2]</span>
+
+<span class="s2">input_elevation:</span>
+<span class="s2">  - datasets:</span>
+<span class="s2">      </span><span class="si">{pc_path}</span><span class="s2"></span>
+<span class="s2">    omit_LAS_classes:</span>
+<span class="s2">    thinning: 0</span>
+
+<span class="s2">options:</span>
+<span class="s2">  building_radius_vertex_elevation: 3.0</span>
+<span class="s2">  radius_vertex_elevation: 1.0</span>
+<span class="s2">  threshold_jump_edges: 0.5</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dns</span><span class="o">=</span><span class="n">dns</span><span class="p">,</span>
+                   <span class="n">uniqueid</span><span class="o">=</span><span class="n">uniqueid</span><span class="p">,</span>
+                   <span class="n">pc_path</span><span class="o">=</span><span class="n">pc_dataset</span><span class="p">,</span>
+                   <span class="n">las_building</span><span class="o">=</span><span class="n">lasb</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="pc_name_dict"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.pc_name_dict">[docs]</a><span class="k">def</span> <span class="nf">pc_name_dict</span><span class="p">(</span><span class="n">pc_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Map dataset_dir to dataset_name</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        dataset_dir mapped to dataset_name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pc_name_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pc_dir</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pc_dir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">pc_name_map</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">dataset_name</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;priority&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">elem2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pc_dir</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">pc_name_map</span><span class="p">[</span><span class="n">elem2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">dataset_name</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="s1">&#39;priority&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Lists deeper than 2 levels are not supported in dataset_dir&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pc_name_map</span><span class="p">[</span><span class="n">pc_dir</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;pc_name_dict() out: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pformat</span><span class="p">(</span><span class="n">pc_name_map</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pc_name_map</span></div>
+
+
+<div class="viewcode-block" id="pc_file_index"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.pc_file_index">[docs]</a><span class="k">def</span> <span class="nf">pc_file_index</span><span class="p">(</span><span class="n">pc_name_map</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an index table of the pointcloud files in the given directories</span>
+<span class="sd">    </span>
+<span class="sd">    Maps the location of the point cloud files to the point cloud tile IDs/names.</span>
+<span class="sd">    The order of priority for the files is determined by the order in </span>
+<span class="sd">    &#39;input_elevation: dataset_dir&#39;</span>
+<span class="sd">    And therefore, if given 5 directories [A, [B, C, D], E], their priority</span>
+<span class="sd">    is [1, [2, 2, 2], 3]. Where a lower number means higher priority. Thus if a</span>
+<span class="sd">    tile (&#39;3a&#39;) has matching files (B/c3a.laz, C/B_3A.laz, D/o-3a.laz, E/a_3a.laz)</span>
+<span class="sd">    in multiple directories (B, C, D, E), then the file in the directory with</span>
+<span class="sd">    the higher priority is selected over that of lower priority. In this case</span>
+<span class="sd">    the file E/a_3a.laz is disregarded. If directories are given in a sublist, such</span>
+<span class="sd">    as B, C, D, then they have equal priority. Thus if a tile has a matching</span>
+<span class="sd">    file in more than one of these directories, then *all* of the files are used </span>
+<span class="sd">    (B/c3a.laz, C/B_3A.laz, D/o-3a.laz).</span>
+<span class="sd">    </span>
+<span class="sd">    Tile name and file name matching is case insensitive. Furthermore, the match</span>
+<span class="sd">    is governed by the file name patterns provided in &#39;input_elevation: dataset_name&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Nested priority eg [1, [2, 2, 2], 3] is not used currently, because </span>
+<span class="sd">    3dfier doesn&#39;t consider vertically split point clouds.</span>
+<span class="sd">    See `Issue #61 &lt;https://github.com/tudelft3d/3dfier/issues/61&gt;`_</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        {pc_tile_name: [path/to/pc_file1, path/to/pc_file2, ...]}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f_idx</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">pri</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">file_index</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">def</span> <span class="nf">get_priority</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;priority&#39;</span><span class="p">])</span>
+    <span class="n">d_sort</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pc_name_map</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">get_priority</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">d_sort</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="n">name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">reg</span> <span class="o">=</span> <span class="s1">&#39;(?&lt;=&#39;</span> <span class="o">+</span> <span class="n">l</span> <span class="o">+</span> <span class="s1">&#39;).*(?=&#39;</span> <span class="o">+</span> <span class="n">r</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+        <span class="n">t_pat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">reg</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">pc_tile</span> <span class="o">=</span> <span class="n">t_pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pc_tile</span><span class="p">:</span>
+                    <span class="n">tile</span> <span class="o">=</span> <span class="n">pc_tile</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="n">idx</span><span class="p">[</span><span class="n">tile</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="n">f_idx</span><span class="p">[</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">idx</span>
+    <span class="c1"># d_sort is [(&#39;/some/path&#39;, {&#39;name&#39;: &#39;a_{tile}.laz&#39;, &#39;priority&#39;: 0}), ...]</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">d_sort</span><span class="p">):</span>
+        <span class="n">dirname</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pri</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">file_index</span> <span class="o">=</span> <span class="n">f_idx</span><span class="p">[</span><span class="n">dirname</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;priority&#39;</span><span class="p">]:</span>
+                <span class="n">tiles</span> <span class="o">=</span> <span class="n">f_idx</span><span class="p">[</span><span class="n">dirname</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">file_index</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+=</span> <span class="n">f_idx</span><span class="p">[</span><span class="n">dirname</span><span class="p">][</span><span class="n">t</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">file_index</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_idx</span><span class="p">[</span><span class="n">dirname</span><span class="p">][</span><span class="n">t</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">file_index</span><span class="p">,</span> <span class="o">**</span><span class="n">f_idx</span><span class="p">[</span><span class="n">dirname</span><span class="p">]}</span>
+                <span class="n">file_index</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="n">pri</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;priority&#39;</span><span class="p">])</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">file_index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_index</span></div>
+
+
+<div class="viewcode-block" id="find_pc_tiles"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.find_pc_tiles">[docs]</a><span class="k">def</span> <span class="nf">find_pc_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">table_index_pc</span><span class="p">,</span> <span class="n">fields_index_pc</span><span class="p">,</span> <span class="n">idx_identical</span><span class="p">,</span>
+                  <span class="n">table_index_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fields_index_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">extent_ewkb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tile_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">prefix_tile_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find point cloud tiles in tile index that intersect the extent or the footprint tile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    prefix_tile_footprint : str or None</span>
+<span class="sd">        Prefix prepended to the footprint tile view names. If None, the views are named as</span>
+<span class="sd">        the values in fields_index_fooptrint[&#39;unit_name&#39;].</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Contains the AHN tile name as key, the AHN version of the tile as value</span>
+<span class="sd">        Eg. {&#39;37hn1&#39;: 3, &#39;37hz1&#39;: 2}</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">extent_ewkb</span><span class="p">:</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="n">get_2Dtiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">table_index_pc</span><span class="p">,</span> <span class="n">fields_index_pc</span><span class="p">,</span> <span class="n">extent_ewkb</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">idx_identical</span><span class="p">:</span>
+        <span class="n">schema_pc_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index_pc</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+        <span class="n">table_pc_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index_pc</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+        <span class="n">field_pc_unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index_pc</span><span class="p">[</span><span class="s1">&#39;unit_name&#39;</span><span class="p">])</span>
+        <span class="c1"># because the footprint and elevation tile IDs are identical</span>
+        <span class="k">if</span> <span class="n">prefix_tile_footprint</span><span class="p">:</span>
+            <span class="n">tile_footprint</span> <span class="o">=</span> <span class="n">tile_footprint</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="n">prefix_tile_footprint</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">tile_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tile_footprint</span><span class="p">)</span>
+        
+        <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            </span><span class="si">{table_pc}</span><span class="s2">.</span><span class="si">{field_pc_unit}</span><span class="s2"></span>
+<span class="s2">            ,</span><span class="si">{table_pc}</span><span class="s2">.ahn_version</span>
+<span class="s2">        FROM</span>
+<span class="s2">            </span><span class="si">{schema_pc}</span><span class="s2">.</span><span class="si">{table_pc}</span><span class="s2"></span>
+<span class="s2">        WHERE </span><span class="si">{table_pc}</span><span class="s2">.</span><span class="si">{field_pc_unit}</span><span class="s2"> = </span><span class="si">{tile}</span><span class="s2">;</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_pc</span><span class="o">=</span><span class="n">table_pc_q</span><span class="p">,</span>
+                    <span class="n">field_pc_unit</span><span class="o">=</span><span class="n">field_pc_unit_q</span><span class="p">,</span>
+                    <span class="n">schema_pc</span><span class="o">=</span><span class="n">schema_pc_q</span><span class="p">,</span>
+                    <span class="n">tile</span><span class="o">=</span><span class="n">tile_q</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        <span class="n">resultset</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">resultset</span><span class="p">:</span>
+            <span class="n">tile_id</span> <span class="o">=</span> <span class="n">tile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">tile</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+                    <span class="n">tiles</span><span class="p">[</span><span class="n">tile_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;tile ID </span><span class="si">%s</span><span class="s2"> is duplicate&quot;</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tile </span><span class="si">%s</span><span class="s2"> ahn_version is NULL&quot;</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">schema_pc_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index_pc</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+        <span class="n">table_pc_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index_pc</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+        <span class="n">field_pc_geom_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index_pc</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
+        <span class="n">field_pc_unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index_pc</span><span class="p">[</span><span class="s1">&#39;unit_name&#39;</span><span class="p">])</span>
+
+        <span class="n">schema_ftpr_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index_footprint</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+        <span class="n">table_ftpr_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index_footprint</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+        <span class="n">field_ftpr_geom_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index_footprint</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
+        <span class="n">field_ftpr_unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index_footprint</span><span class="p">[</span><span class="s1">&#39;unit_name&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">prefix_tile_footprint</span><span class="p">:</span>
+            <span class="n">tile_footprint</span> <span class="o">=</span> <span class="n">tile_footprint</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="n">prefix_tile_footprint</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">tile_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tile_footprint</span><span class="p">)</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            </span><span class="si">{table_pc}</span><span class="s2">.</span><span class="si">{field_pc_unit}</span><span class="s2"></span>
+<span class="s2">            ,</span><span class="si">{table_pc}</span><span class="s2">.ahn_version</span>
+<span class="s2">        FROM</span>
+<span class="s2">            </span><span class="si">{schema_pc}</span><span class="s2">.</span><span class="si">{table_pc}</span><span class="s2">,</span>
+<span class="s2">            </span><span class="si">{schema_ftpr}</span><span class="s2">.</span><span class="si">{table_ftpr}</span><span class="s2"></span>
+<span class="s2">        WHERE</span>
+<span class="s2">            </span><span class="si">{table_ftpr}</span><span class="s2">.</span><span class="si">{field_ftpr_unit}</span><span class="s2"> = </span><span class="si">{tile}</span><span class="s2"></span>
+<span class="s2">            AND st_intersects(</span>
+<span class="s2">                </span><span class="si">{table_pc}</span><span class="s2">.</span><span class="si">{field_pc_geom}</span><span class="s2">,</span>
+<span class="s2">                </span><span class="si">{table_ftpr}</span><span class="s2">.</span><span class="si">{field_ftpr_geom}</span><span class="s2"></span>
+<span class="s2">            );</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_pc</span><span class="o">=</span><span class="n">table_pc_q</span><span class="p">,</span>
+                    <span class="n">field_pc_unit</span><span class="o">=</span><span class="n">field_pc_unit_q</span><span class="p">,</span>
+                    <span class="n">schema_pc</span><span class="o">=</span><span class="n">schema_pc_q</span><span class="p">,</span>
+                    <span class="n">schema_ftpr</span><span class="o">=</span><span class="n">schema_ftpr_q</span><span class="p">,</span>
+                    <span class="n">table_ftpr</span><span class="o">=</span><span class="n">table_ftpr_q</span><span class="p">,</span>
+                    <span class="n">field_ftpr_unit</span><span class="o">=</span><span class="n">field_ftpr_unit_q</span><span class="p">,</span>
+                    <span class="n">tile</span><span class="o">=</span><span class="n">tile_q</span><span class="p">,</span>
+                    <span class="n">field_pc_geom</span><span class="o">=</span><span class="n">field_pc_geom_q</span><span class="p">,</span>
+                    <span class="n">field_ftpr_geom</span><span class="o">=</span><span class="n">field_ftpr_geom_q</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        <span class="n">resultset</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">resultset</span><span class="p">:</span>
+            <span class="n">tile_id</span> <span class="o">=</span> <span class="n">tile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">tile</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+                    <span class="n">tiles</span><span class="p">[</span><span class="n">tile_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tile</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;tile ID </span><span class="si">%s</span><span class="s2"> is duplicate&quot;</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tile </span><span class="si">%s</span><span class="s2"> ahn_version is NULL&quot;</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tiles</span></div>
+
+
+<div class="viewcode-block" id="extent_to_ewkb"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.extent_to_ewkb">[docs]</a><span class="k">def</span> <span class="nf">extent_to_ewkb</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reads a polygon from a file and returns its EWKB.</span>
+
+<span class="sd">    I didn&#39;t find a simple way to safely get SRIDs from the input geometry</span>
+<span class="sd">    with Shapely, therefore it is obtained from the database and the CRS of the</span>
+<span class="sd">    polygon is assumed to be the same as of the tile indexes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    table_index : dict</span>
+<span class="sd">        {&#39;schema&#39; : str, &#39;table&#39; : str} of the table of tile index.</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Path to the polygon for clipping the input.</span>
+<span class="sd">        Must be in the same CRS as the table_index.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    [Shapely polygon, EWKB str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;SELECT st_srid(geom) AS srid</span>
+<span class="s2">                    FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">                    LIMIT 1;&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">)</span>
+    <span class="n">srid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">srid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="c1"># Get clip polygon and set SRID</span>
+    <span class="k">with</span> <span class="n">fiona</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">:</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">shape</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
+        <span class="c1"># Change a the default mode to add this, if SRID is set</span>
+        <span class="n">geos</span><span class="o">.</span><span class="n">WKBWriter</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;include_srid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># set SRID for polygon</span>
+        <span class="n">geos</span><span class="o">.</span><span class="n">lgeos</span><span class="o">.</span><span class="n">GEOSSetSRID</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">_geom</span><span class="p">,</span> <span class="n">srid</span><span class="p">)</span>
+        <span class="n">ewkb</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">wkb_hex</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">poly</span><span class="p">,</span> <span class="n">ewkb</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_2Dtiles"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.get_2Dtiles">[docs]</a><span class="k">def</span> <span class="nf">get_2Dtiles</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_index</span><span class="p">,</span> <span class="n">fields_index</span><span class="p">,</span> <span class="n">ewkb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of tiles that overlap the output extent.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    table_index : dict</span>
+<span class="sd">        {&#39;schema&#39; : str, &#39;table&#39; : str} of the table of tile index.</span>
+<span class="sd">    fields_index : dict</span>
+<span class="sd">        {&#39;primary_key&#39; : str, &#39;geometry&#39; : str, &#39;unit_name&#39; : str}</span>
+<span class="sd">        primary_key: Name of the primary_key field in table_index.</span>
+<span class="sd">        geometry: Name of the geometry field in table_index.</span>
+<span class="sd">        unit: Name of the field in table_index that contains the index unit names.</span>
+<span class="sd">    ewkb : str</span>
+<span class="sd">        EWKB representation of a polygon.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    [tile IDs]</span>
+<span class="sd">        Tiles that are intersected by the polygon that is provided in &#39;extent&#39; (YAML).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+    <span class="n">field_idx_geom_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
+    <span class="n">field_idx_unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_index</span><span class="p">[</span><span class="s1">&#39;unit_name&#39;</span><span class="p">])</span>
+
+    <span class="n">ewkb_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">ewkb</span><span class="p">)</span>
+    <span class="c1"># TODO: user input for a.unit</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT </span><span class="si">{table}</span><span class="s2">.</span><span class="si">{field_idx_unit}</span><span class="s2"></span>
+<span class="s2">                FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">                WHERE st_intersects(</span><span class="si">{table}</span><span class="s2">.</span><span class="si">{field_idx_geom}</span><span class="s2">, </span><span class="si">{ewkb}</span><span class="s2">::geometry);</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+                            <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                            <span class="n">field_idx_unit</span><span class="o">=</span><span class="n">field_idx_unit_q</span><span class="p">,</span>
+                            <span class="n">field_idx_geom</span><span class="o">=</span><span class="n">field_idx_geom_q</span><span class="p">,</span>
+                            <span class="n">ewkb</span><span class="o">=</span><span class="n">ewkb_q</span><span class="p">)</span>
+    <span class="n">resultset</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">tiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">tile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">resultset</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Nr. of tiles in clip extent: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">tiles</span></div>
+
+
+<div class="viewcode-block" id="get_2Dtile_area"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.get_2Dtile_area">[docs]</a><span class="k">def</span> <span class="nf">get_2Dtile_area</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table_index</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the area of a 2D tile.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Assumes that all tiles have equal area. Area is in units of the tile CRS.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    table_index : list of str</span>
+<span class="sd">        {&#39;schema&#39; : str, &#39;table&#39; : str} of the table of tile index.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Area of a tile</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table_index</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT public.st_area(geom) AS area</span>
+<span class="s2">                FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">                LIMIT 1;</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_2Dtile_views"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.get_2Dtile_views">[docs]</a><span class="k">def</span> <span class="nf">get_2Dtile_views</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span> <span class="n">tiles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get View names of the 2D tiles. It tries to find views in schema_tiles</span>
+<span class="sd">    that contain the respective tile ID in their name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    schema_tiles: str</span>
+<span class="sd">        Name of the schema where the 2D tile views are stored.</span>
+<span class="sd">    tiles : list</span>
+<span class="sd">        Tile IDs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Name of the view that contain the tile ID as substring.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get View names for the tiles</span>
+    <span class="n">tstr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tstr</span><span class="p">)</span>
+    <span class="n">schema_tiles</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">schema_tiles</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;SELECT table_name</span>
+<span class="s2">                        FROM information_schema.views</span>
+<span class="s2">                        WHERE table_schema = </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">                        AND table_name LIKE any(</span><span class="si">{}</span><span class="s2">);</span>
+<span class="s2">                        &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema_tiles</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="n">resultset</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">tile_views</span> <span class="o">=</span> <span class="p">[</span><span class="n">tile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">resultset</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">tile_views</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tile_views</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;get_2Dtile_views returned None with </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> 
+                      <span class="n">query</span><span class="o">.</span><span class="n">as_string</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">conn</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="clip_2Dtiles"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.clip_2Dtiles">[docs]</a><span class="k">def</span> <span class="nf">clip_2Dtiles</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">user_schema</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span> <span class="n">tiles</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">,</span>
+                 <span class="n">fields_view</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates views for the clipped tiles.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    user_schema: str</span>
+<span class="sd">    schema_tiles : str</span>
+<span class="sd">    tiles : list</span>
+<span class="sd">    poly : Shapely polygon</span>
+<span class="sd">    clip_prefix : str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Name of the views of the clipped tiles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user_schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user_schema</span><span class="p">)</span>
+    <span class="n">schema_tiles</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema_tiles</span><span class="p">)</span>
+    <span class="n">tiles_clipped</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">fields_all</span> <span class="o">=</span> <span class="n">fields_view</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span>
+    <span class="n">field_geom_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">fields_view</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
+
+    <span class="c1">#FIXME: append all queries into a single string</span>
+    <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">clip_prefix</span> <span class="o">+</span> <span class="n">tile</span>
+        <span class="n">tiles_clipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">tile_view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+        <span class="n">fields_q</span> <span class="o">=</span> <span class="n">parse_sql_select_fields</span><span class="p">(</span><span class="n">tile</span><span class="p">,</span> <span class="n">fields_all</span><span class="p">)</span>
+        <span class="n">wkb</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">wkb_hex</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE OR REPLACE VIEW </span><span class="si">{user_schema}</span><span class="s2">.</span><span class="si">{view}</span><span class="s2"> AS</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    </span><span class="si">{fields}</span><span class="s2"></span>
+<span class="s2">                FROM</span>
+<span class="s2">                    </span><span class="si">{schema_tiles}</span><span class="s2">.</span><span class="si">{tile_view}</span><span class="s2"></span>
+<span class="s2">                WHERE</span>
+<span class="s2">                    st_within(</span><span class="si">{tile_view}</span><span class="s2">.</span><span class="si">{geom}</span><span class="s2">, </span><span class="si">{wkb}</span><span class="s2">::geometry)&quot;&quot;&quot;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_schema</span><span class="o">=</span><span class="n">user_schema</span><span class="p">,</span>
+                                 <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
+                                 <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">,</span>
+                                 <span class="n">fields</span><span class="o">=</span><span class="n">fields_q</span><span class="p">,</span>
+                                 <span class="n">tile_view</span><span class="o">=</span><span class="n">tile_view</span><span class="p">,</span>
+                                 <span class="n">geom</span><span class="o">=</span><span class="n">field_geom_q</span><span class="p">,</span>
+                                 <span class="n">wkb</span><span class="o">=</span><span class="n">wkb</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">tiles_clipped</span><span class="p">))</span> <span class="o">+</span>
+            <span class="s2">&quot; views with prefix &#39;</span><span class="si">{}</span><span class="s2">&#39; are created in schema </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">clip_prefix</span><span class="p">,</span>
+                <span class="n">user_schema</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot create view </span><span class="si">{user_schema}</span><span class="s2">.</span><span class="si">{clip_prefix}{tile}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="o">=</span><span class="n">clip_prefix</span><span class="p">))</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">tiles_clipped</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="union_2Dtiles"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.union_2Dtiles">[docs]</a><span class="k">def</span> <span class="nf">union_2Dtiles</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">user_schema</span><span class="p">,</span> <span class="n">tiles_clipped</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">,</span> <span class="n">fields_view</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Union the clipped tiles into a single view.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    user_schema : str</span>
+<span class="sd">    tiles_clipped : list</span>
+<span class="sd">    clip_prefix : str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Name of the united view.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if there are enough tiles to unite</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tiles_clipped</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Need at least 2 tiles for union&quot;</span>
+
+    <span class="n">user_schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user_schema</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{clip_prefix}</span><span class="s2">union&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">clip_prefix</span><span class="o">=</span><span class="n">clip_prefix</span><span class="p">)</span>
+    <span class="n">union_view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="n">sql_query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;CREATE OR REPLACE VIEW </span><span class="si">{user_schema}</span><span class="s2">.</span><span class="si">{view}</span><span class="s2"> AS &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">user_schema</span><span class="o">=</span><span class="n">user_schema</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">union_view</span><span class="p">)</span>
+
+    <span class="n">fields_all</span> <span class="o">=</span> <span class="n">fields_view</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles_clipped</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+        <span class="n">fields_q</span> <span class="o">=</span> <span class="n">parse_sql_select_fields</span><span class="p">(</span><span class="n">tile</span><span class="p">,</span> <span class="n">fields_all</span><span class="p">)</span>
+        <span class="n">sql_subquery</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{fields}</span><span class="s2"></span>
+<span class="s2">                               FROM </span><span class="si">{user_schema}</span><span class="s2">.</span><span class="si">{view}</span><span class="s2"></span>
+<span class="s2">                               UNION ALL &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="n">fields_q</span><span class="p">,</span>
+                                                     <span class="n">user_schema</span><span class="o">=</span><span class="n">user_schema</span><span class="p">,</span>
+                                                     <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">)</span>
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="n">sql_query</span> <span class="o">+</span> <span class="n">sql_subquery</span>
+    <span class="c1"># The last statement</span>
+    <span class="n">tile</span> <span class="o">=</span> <span class="n">tiles_clipped</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+    <span class="n">fields_q</span> <span class="o">=</span> <span class="n">parse_sql_select_fields</span><span class="p">(</span><span class="n">tile</span><span class="p">,</span> <span class="n">fields_all</span><span class="p">)</span>
+    <span class="n">sql_subquery</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{fields}</span><span class="s2"></span>
+<span class="s2">                           FROM </span><span class="si">{user_schema}</span><span class="s2">.</span><span class="si">{view}</span><span class="s2">;</span>
+<span class="s2">                           &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="n">fields_q</span><span class="p">,</span>
+                                       <span class="n">user_schema</span><span class="o">=</span><span class="n">user_schema</span><span class="p">,</span>
+                                       <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">)</span>
+    <span class="n">sql_query</span> <span class="o">=</span> <span class="n">sql_query</span> <span class="o">+</span> <span class="n">sql_subquery</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">sql_query</span><span class="p">))</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;View </span><span class="si">{}</span><span class="s2"> created in schema </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">user_schema</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot create view </span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_schema</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">return</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">u</span></div>
+
+
+<div class="viewcode-block" id="get_view_fields"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.get_view_fields">[docs]</a><span class="k">def</span> <span class="nf">get_view_fields</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">user_schema</span><span class="p">,</span> <span class="n">tile_views</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the fields in a 2D tile view</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tile_views : list of str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        {&#39;all&#39; : list, &#39;geometry&#39; : str}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tile_views</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">schema_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">user_schema</span><span class="p">)</span>
+        <span class="n">view_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tile_views</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">resultset</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                            SELECT</span>
+<span class="s2">                                column_name</span>
+<span class="s2">                            FROM</span>
+<span class="s2">                                information_schema.columns</span>
+<span class="s2">                            WHERE</span>
+<span class="s2">                                table_schema = </span><span class="si">{schema}</span><span class="s2"></span>
+<span class="s2">                                AND table_name = </span><span class="si">{view}</span><span class="s2">;</span>
+<span class="s2">                            &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span>
+                                        <span class="n">view</span><span class="o">=</span><span class="n">view_q</span><span class="p">))</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resultset</span><span class="p">]</span>
+
+        <span class="n">geom_res</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                            SELECT</span>
+<span class="s2">                                f_geometry_column</span>
+<span class="s2">                            FROM</span>
+<span class="s2">                                public.geometry_columns</span>
+<span class="s2">                            WHERE</span>
+<span class="s2">                                f_table_schema = </span><span class="si">{schema}</span><span class="s2"></span>
+<span class="s2">                                AND f_table_name = </span><span class="si">{view}</span><span class="s2">;</span>
+<span class="s2">                            &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span>
+                                        <span class="n">view</span><span class="o">=</span><span class="n">view_q</span><span class="p">))</span>
+        <span class="n">f_geom</span> <span class="o">=</span> <span class="n">geom_res</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_geom</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="parse_sql_select_fields"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.parse_sql_select_fields">[docs]</a><span class="k">def</span> <span class="nf">parse_sql_select_fields</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses a list of field names into &quot;table&quot;.&quot;field&quot; to insert into a SELECT ... FROM table</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fields : list of str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    psycopg2.sql.Composable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span><span class="p">),</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">f</span><span class="p">)]))</span>
+    <span class="n">sql_fields</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sql_fields</span></div>
+
+
+<div class="viewcode-block" id="drop_2Dtiles"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.drop_2Dtiles">[docs]</a><span class="k">def</span> <span class="nf">drop_2Dtiles</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">user_schema</span><span class="p">,</span> <span class="n">views_to_drop</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Drops Views in a given schema.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Used for dropping the views created by clip_2Dtiles() and union_2Dtiles().</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    user_schema : str</span>
+<span class="sd">    views_to_drop : list</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True on success, False on failure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user_schema</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">user_schema</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">views_to_drop</span><span class="p">:</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+        <span class="n">queries</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Composed</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;DROP VIEW IF EXISTS </span><span class="si">{user_schema}</span><span class="s2">.</span><span class="si">{view}</span><span class="s2"> CASCADE;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">user_schema</span><span class="o">=</span><span class="n">user_schema</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">)</span>
+        <span class="n">queries</span> <span class="o">+=</span> <span class="n">query</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">queries</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Dropped </span><span class="si">{}</span><span class="s2"> in schema </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">views_to_drop</span><span class="p">,</span> <span class="n">user_schema</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Cannot drop views &quot;</span><span class="p">,</span> <span class="n">views_to_drop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="configure_tiles"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.configure_tiles">[docs]</a><span class="k">def</span> <span class="nf">configure_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Configure the tile list based on the input parameter</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        bag3d configuration</span>
+<span class="sd">    clip_prefix : str</span>
+<span class="sd">        Prefix to prepend to VIEW names when an extent is used</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The configuration with the configured tile list. The following elements</span>
+<span class="sd">        are added to the config:</span>
+<span class="sd">        - `clip_prefix` : </span>
+<span class="sd">        - `tile_out` : name of the tile</span>
+<span class="sd">        - extent_ewkb : ewkb of the extent polygon</span>
+<span class="sd">        - tile_list is overwritten, either based on the provided extent or </span>
+<span class="sd">        the provided tile names are substituted with the names of the tile </span>
+<span class="sd">        views in input_polygons:tile_schema</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;clip_prefix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clip_prefix</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;extent_ewkb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;tile_list: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">])</span>
+    <span class="c1"># TODO: assert that CREATE/DROP allowed on TILE_SCHEMA and/or USER_SCHEMA</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;extent&quot;</span><span class="p">]:</span>
+        <span class="c1"># TODO: it should also return tile IDs without the tile prefix, and not</span>
+        <span class="c1"># the tile view names. Thus remove get_2D_tile_views()</span>
+        <span class="n">poly</span><span class="p">,</span> <span class="n">ewkb</span> <span class="o">=</span> <span class="n">extent_to_ewkb</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;polygons&#39;</span><span class="p">],</span> 
+                                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;extent&quot;</span><span class="p">])</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;extent_ewkb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ewkb</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="n">get_2Dtiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;polygons&#39;</span><span class="p">],</span> 
+                            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">],</span> <span class="n">ewkb</span><span class="p">)</span>
+        <span class="c1"># Get view names for tiles</span>
+        <span class="n">tile_views</span> <span class="o">=</span> <span class="n">get_2Dtile_views</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> 
+                                      <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_schema&quot;</span><span class="p">],</span> 
+                                      <span class="n">tiles</span><span class="p">)</span>
+        <span class="n">view_fields</span> <span class="o">=</span> <span class="n">get_view_fields</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> 
+                                      <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_schema&quot;</span><span class="p">],</span> 
+                                      <span class="n">tile_views</span><span class="p">)</span>
+        <span class="c1"># clip 2D tiles to extent</span>
+        <span class="n">tiles_clipped</span> <span class="o">=</span> <span class="n">clip_2Dtiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> 
+                                     <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s1">&#39;user_schema&#39;</span><span class="p">],</span> 
+                                     <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s1">&#39;tile_schema&#39;</span><span class="p">],</span> 
+                                     <span class="n">tile_views</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">,</span> <span class="n">view_fields</span><span class="p">)</span>
+        <span class="c1"># if the area of the extent is less than that of a tile, union the tiles is the</span>
+        <span class="c1"># extent spans over many</span>
+        <span class="n">tile_area</span> <span class="o">=</span> <span class="n">get_2Dtile_area</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;polygons&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tiles_clipped</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">poly</span><span class="o">.</span><span class="n">area</span> <span class="o">&lt;</span> <span class="n">tile_area</span><span class="p">:</span>
+            <span class="n">union_view</span> <span class="o">=</span> <span class="n">union_2Dtiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> 
+                                       <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s1">&#39;user_schema&#39;</span><span class="p">],</span> 
+                                       <span class="n">tiles_clipped</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">,</span> <span class="n">view_fields</span><span class="p">)</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tile_out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;output_batch3dfier&quot;</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">union_view</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tiles_clipped</span>
+    <span class="k">elif</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]:</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;polygons&#39;</span><span class="p">]</span>
+            <span class="n">schema_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+            <span class="n">table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+            <span class="n">unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">poly</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;unit_name&#39;</span><span class="p">])</span>
+            
+            <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;SELECT </span><span class="si">{unit}</span><span class="s2"> FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2">;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">table_q</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit_q</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+            <span class="n">tiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">tile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)]</span>
+<span class="c1">#             tile_views = get_2Dtile_views(conn, </span>
+<span class="c1">#                                           config[&quot;input_polygons&quot;][&#39;tile_schema&#39;],</span>
+<span class="c1">#                                           tiles)</span>
+        <span class="k">else</span><span class="p">:</span>
+<span class="c1">#             tile_views = get_2Dtile_views(conn, </span>
+<span class="c1">#                                           config[&quot;input_polygons&quot;][&#39;tile_schema&#39;],</span>
+<span class="c1">#                                           config[&quot;input_polygons&quot;][&quot;tile_list&quot;])</span>
+            <span class="c1"># TODO: --V</span>
+            <span class="c1"># now let&#39;s just assume that in config[&quot;input_polygons&quot;][&quot;tile_list&quot;]</span>
+            <span class="c1"># the tile IDs are provided and not the tile view names</span>
+            <span class="n">tiles</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]</span>
+            <span class="k">pass</span>
+<span class="c1">#         if not tile_views or len(tile_views) == 0:</span>
+<span class="c1">#             logger.error(&quot;tile_views is None or len(tile_views) == 0&quot;)</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             config[&quot;input_polygons&quot;][&quot;tile_list&quot;] = tile_views</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_polygons&quot;</span><span class="p">][</span><span class="s2">&quot;tile_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tiles</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Please provide either &#39;extent&#39; or &#39;tile_list&#39; in config.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,688 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.importer &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.importer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.importer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Import batch3dfier output into the database&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">run</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">psycopg2</span>
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="k">import</span> <span class="n">sql</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;import&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="create_heights_table"><a class="viewcode-back" href="../bag3d.html#bag3d.importer.create_heights_table">[docs]</a><span class="k">def</span> <span class="nf">create_heights_table</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a postgres table that can store the content of 3dfier&#39;s CSV-BUILDINGS-MULTIPLE output</span>
+<span class="sd">    </span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The &#39;id&#39; field is set to numeric because the data type of the </span>
+<span class="sd">    BAG &#39;identificatie&#39; field in the NLExtract changes between extracts.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    schema : string</span>
+<span class="sd">        Name of the schema where to create the table</span>
+<span class="sd">    table : string</span>
+<span class="sd">        Name of the new table</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    Exception</span>
+<span class="sd">        Raises every exception</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    boolean</span>
+<span class="sd">        True on success</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">schema_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE TABLE IF NOT EXISTS </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"> (</span>
+<span class="s2">        id bigint,</span>
+<span class="s2">        &quot;ground-0.00&quot; real,</span>
+<span class="s2">        &quot;ground-0.10&quot; real,</span>
+<span class="s2">        &quot;ground-0.20&quot; real,</span>
+<span class="s2">        &quot;ground-0.30&quot; real,</span>
+<span class="s2">        &quot;ground-0.40&quot; real,</span>
+<span class="s2">        &quot;ground-0.50&quot; real,</span>
+<span class="s2">        &quot;roof-0.00&quot; real,</span>
+<span class="s2">        &quot;roof-0.10&quot; real,</span>
+<span class="s2">        &quot;roof-0.25&quot; real,</span>
+<span class="s2">        &quot;roof-0.50&quot; real,</span>
+<span class="s2">        &quot;roof-0.75&quot; real,</span>
+<span class="s2">        &quot;roof-0.90&quot; real,</span>
+<span class="s2">        &quot;roof-0.95&quot; real,</span>
+<span class="s2">        &quot;roof-0.99&quot; real,</span>
+<span class="s2">        ahn_file_date timestamptz,</span>
+<span class="s2">        ahn_version smallint,</span>
+<span class="s2">        tile_id text</span>
+<span class="s2">        );</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">table_q</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="csv2db"><a class="viewcode-back" href="../bag3d.html#bag3d.importer.csv2db">[docs]</a><span class="k">def</span> <span class="nf">csv2db</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">out_paths</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a table with multiple height info per BAG building footprint</span>
+<span class="sd">    </span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Only for 3dfier&#39;s CSV-BUILDINGS-MULTIPLE output. </span>
+<span class="sd">    Only Linux.</span>
+<span class="sd">    Alter the CSV files by adding the ahn_file_date, ahn_version fields and values.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    cfg: dict</span>
+<span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
+<span class="sd">    out_paths: list of strings</span>
+<span class="sd">        Paths of the CSV files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema_pc_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">table_pc_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+    <span class="n">field_pc_unit_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_index&#39;</span><span class="p">][</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;unit_name&#39;</span><span class="p">])</span>
+    
+    <span class="n">schema_out_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">table_out_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+    
+    <span class="n">table_idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_id_idx&quot;</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">create_heights_table</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+    
+    <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
+        <span class="n">tbl</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">]])</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">out_paths</span><span class="p">:</span>
+                <span class="n">csv_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">tile</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;prefix_tile_footprint&#39;</span><span class="p">],</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">tile_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span>
+                
+                <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;SELECT file_date, ahn_version</span>
+<span class="s2">                                    FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">                                    WHERE </span><span class="si">{unit_name}</span><span class="s2"> = </span><span class="si">{tile}</span><span class="s2">;</span>
+<span class="s2">                                &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_pc_q</span><span class="p">,</span>
+                                           <span class="n">table</span><span class="o">=</span><span class="n">table_pc_q</span><span class="p">,</span>
+                                           <span class="n">unit_name</span><span class="o">=</span><span class="n">field_pc_unit_q</span><span class="p">,</span>
+                                           <span class="n">tile</span><span class="o">=</span><span class="n">tile_q</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+                <span class="n">resultset</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">resultset</span><span class="p">)</span>
+                <span class="c1"># the AHN3 file creation date that is stored in the tile index</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ahn_file_date</span> <span class="o">=</span> <span class="n">resultset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                    <span class="n">ahn_version</span> <span class="o">=</span> <span class="n">resultset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="n">ahn_file_date</span> <span class="o">=</span> <span class="o">-</span><span class="mf">99.99</span>
+                    <span class="n">ahn_version</span> <span class="o">=</span> <span class="o">-</span><span class="mf">99.99</span>
+                
+                <span class="c1"># Need to do some linux text-fu so that the whole csv file can</span>
+                <span class="c1"># be imported with COPY instead of row-wise edit and import</span>
+                <span class="c1"># in python (suuuper slow)</span>
+                <span class="c1"># Watch out for trailing commas from the CSV (until #58 is fixed in 3dfier)</span>
+                <span class="n">cmd_add_ahn</span> <span class="o">=</span> <span class="s2">&quot;gawk -i inplace -F&#39;,&#39; &#39;BEGIN { OFS = </span><span class="se">\&quot;</span><span class="s2">,</span><span class="se">\&quot;</span><span class="s2"> } {$16=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">; print}&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">ahn_file_date</span><span class="p">,</span> 
+                    <span class="n">ahn_version</span><span class="p">,</span>
+                    <span class="n">tile</span><span class="p">,</span>
+                    <span class="n">path</span><span class="p">)</span>
+                <span class="n">run</span><span class="p">(</span><span class="n">cmd_add_ahn</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">cmd_header</span> <span class="o">=</span> <span class="s2">&quot;sed -i &#39;1s/.*/id,ground-0.00,ground-0.10,ground-0.20,</span><span class="se">\</span>
+<span class="s2">ground-0.30,ground-0.40,ground-0.50,roof-0.00,roof-0.10,</span><span class="se">\</span>
+<span class="s2">roof-0.25,roof-0.50,roof-0.75,roof-0.90,roof-0.95,roof-0.99,</span><span class="se">\</span>
+<span class="s2">ahn_file_date,ahn_version,tile_id/&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span>
+                <span class="n">run</span><span class="p">(</span><span class="n">cmd_header</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+                    <span class="nb">next</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span> <span class="c1"># skip header</span>
+                    <span class="n">cur</span><span class="o">.</span><span class="n">copy_from</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">tbl</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="s1">&#39;-99.99&#39;</span><span class="p">)</span>
+                        
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span>
+            <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;CREATE INDEX IF NOT EXISTS </span><span class="si">{table}</span><span class="s2"></span>
+<span class="s2">                    ON </span><span class="si">{schema_q}</span><span class="s2">.</span><span class="si">{table_q}</span><span class="s2"> (id);</span>
+<span class="s2">                    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema_q</span><span class="o">=</span><span class="n">schema_out_q</span><span class="p">,</span>
+                                <span class="n">table_q</span><span class="o">=</span><span class="n">table_out_q</span><span class="p">,</span>
+                                <span class="n">table</span><span class="o">=</span><span class="n">table_idx</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span>
+            <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;COMMENT ON TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{table}</span><span class="s2"> IS</span>
+<span class="s2">                    &#39;Building heights generated with 3dfier.&#39;;</span>
+<span class="s2">                    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_out_q</span><span class="p">,</span>
+                               <span class="n">table</span><span class="o">=</span><span class="n">table_out_q</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;csv2db: exit because create_heights_table returned False&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="create_bag3d_relations"><a class="viewcode-back" href="../bag3d.html#bag3d.importer.create_bag3d_relations">[docs]</a><span class="k">def</span> <span class="nf">create_bag3d_relations</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates the necessary postgres tables and views for the 3D BAG</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    cfg: dict</span>
+<span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">bag3d_table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">])</span>
+    <span class="n">heights_table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+    
+    <span class="n">drop_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> CASCADE;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">drop_q</span><span class="p">)</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE TABLE bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT</span>
+<span class="s2">        p.gid,</span>
+<span class="s2">        p.identificatie::bigint,</span>
+<span class="s2">        p.aanduidingrecordinactief,</span>
+<span class="s2">        p.aanduidingrecordcorrectie,</span>
+<span class="s2">        p.officieel,</span>
+<span class="s2">        p.inonderzoek,</span>
+<span class="s2">        p.documentnummer,</span>
+<span class="s2">        p.documentdatum,</span>
+<span class="s2">        p.pandstatus,</span>
+<span class="s2">        p.bouwjaar,</span>
+<span class="s2">        p.begindatumtijdvakgeldigheid,</span>
+<span class="s2">        p.einddatumtijdvakgeldigheid,</span>
+<span class="s2">        p.geovlak,</span>
+<span class="s2">        h.&quot;ground-0.00&quot;,</span>
+<span class="s2">        h.&quot;ground-0.10&quot;,</span>
+<span class="s2">        h.&quot;ground-0.20&quot;,</span>
+<span class="s2">        h.&quot;ground-0.30&quot;,</span>
+<span class="s2">        h.&quot;ground-0.40&quot;,</span>
+<span class="s2">        h.&quot;ground-0.50&quot;,</span>
+<span class="s2">        h.&quot;roof-0.00&quot;,</span>
+<span class="s2">        h.&quot;roof-0.10&quot;,</span>
+<span class="s2">        h.&quot;roof-0.25&quot;,</span>
+<span class="s2">        h.&quot;roof-0.50&quot;,</span>
+<span class="s2">        h.&quot;roof-0.75&quot;,</span>
+<span class="s2">        h.&quot;roof-0.90&quot;,</span>
+<span class="s2">        h.&quot;roof-0.95&quot;,</span>
+<span class="s2">        h.&quot;roof-0.99&quot;,</span>
+<span class="s2">        h.ahn_file_date,</span>
+<span class="s2">        h.ahn_version,</span>
+<span class="s2">        h.tile_id</span>
+<span class="s2">    FROM bagactueel.pandactueelbestaand p</span>
+<span class="s2">    INNER JOIN bagactueel.</span><span class="si">{heights}</span><span class="s2"> h ON p.identificatie::numeric = h.id;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span> <span class="n">heights</span><span class="o">=</span><span class="n">heights_table_q</span><span class="p">)</span>
+    <span class="c1"># the type of bagactueel.pand.identificatie can change between different </span>
+    <span class="c1"># BAG extracts (numeric or varchar)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_identificatie_idx&quot;</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> (identificatie);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_tile_id_idx&quot;</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> (tile_id);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_geovlak_idx&quot;</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> USING GIST (geovlak);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    SELECT populate_geometry_columns(&#39;bagactueel.</span><span class="si">{bag3d}</span><span class="s2">&#39;::regclass);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    COMMENT ON TABLE bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> IS &#39;The 3D BAG&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    DROP TABLE bagactueel.</span><span class="si">{heights}</span><span class="s2"> CASCADE;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">heights</span><span class="o">=</span><span class="n">heights_table_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="import_csv"><a class="viewcode-back" href="../bag3d.html#bag3d.importer.import_csv">[docs]</a><span class="k">def</span> <span class="nf">import_csv</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import the batch3dfier CSV output into the BAG database</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    cfg: dict</span>
+<span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Get CSV files in dir</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">csv_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">]</span>
+        <span class="n">out_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;out_paths: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">out_paths</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;There are </span><span class="si">{}</span><span class="s2"> CSV files in the directory&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">UnboundLocalError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Couln&#39;t find any CSVs in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;dir&#39;</span><span class="p">])</span>
+        <span class="k">raise</span>
+    <span class="n">csv2db</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">out_paths</span><span class="p">)</span>
+    <span class="c1"># TODO: add option for dropping the relations if exist</span>
+    <span class="n">create_bag3d_relations</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="unite_border_tiles"><a class="viewcode-back" href="../bag3d.html#bag3d.importer.unite_border_tiles">[docs]</a><span class="k">def</span> <span class="nf">unite_border_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">border_ahn2</span><span class="p">,</span> <span class="n">border_ahn3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unite the border tiles on the AHN2 and AHN3 border</span>
+<span class="sd">    </span>
+<span class="sd">    Creates a view &#39;bag3d_border_union&#39; in schema. The view has the following</span>
+<span class="sd">    condition on the imported CSV files:</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: sql</span>
+<span class="sd">    </span>
+<span class="sd">        WHERE</span>
+<span class="sd">        a.&quot;ground-0.00&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;ground-0.10&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;ground-0.20&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;ground-0.30&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;ground-0.40&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;ground-0.50&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.00&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.10&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.25&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.50&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.75&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.90&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.95&quot; IS NOT NULL</span>
+<span class="sd">        AND a.&quot;roof-0.99&quot; IS NOT NULL</span>
+<span class="sd">    </span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    BAG field name &#39;identificatie&#39; is hardcoded</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    schema : str</span>
+<span class="sd">        Value from output:schema</span>
+<span class="sd">    border_ahn2 : str</span>
+<span class="sd">        Value from output:bag3d_table in case of AHN2 border tiles</span>
+<span class="sd">    border_ahn2 : str</span>
+<span class="sd">        Value from output:bag3d_table in case of AHN3 border tiles</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    BaseException</span>
+<span class="sd">        If cannot create the view</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Creates a view in database</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE OR REPLACE VIEW </span><span class="si">{schema}</span><span class="s2">.bag3d_border_union AS</span>
+<span class="s2">    WITH border_ahn3_notnull AS(</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            a.*</span>
+<span class="s2">        FROM</span>
+<span class="s2">            </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{border_ahn3}</span><span class="s2"> a</span>
+<span class="s2">        WHERE</span>
+<span class="s2">            a.&quot;ground-0.00&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;ground-0.10&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;ground-0.20&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;ground-0.30&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;ground-0.40&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;ground-0.50&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.00&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.10&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.25&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.50&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.75&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.90&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.95&quot; IS NOT NULL</span>
+<span class="s2">            AND a.&quot;roof-0.99&quot; IS NOT NULL</span>
+<span class="s2">    ),</span>
+<span class="s2">    border_ahn2_id AS(</span>
+<span class="s2">        SELECT</span>
+<span class="s2">            ARRAY_AGG( a.identificatie ) identificatie</span>
+<span class="s2">        FROM</span>
+<span class="s2">            (</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    identificatie</span>
+<span class="s2">                FROM</span>
+<span class="s2">                    </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{border_ahn2}</span><span class="s2"></span>
+<span class="s2">            EXCEPT SELECT</span>
+<span class="s2">                    identificatie</span>
+<span class="s2">                FROM</span>
+<span class="s2">                    border_ahn3_notnull</span>
+<span class="s2">            ) a</span>
+<span class="s2">    ) SELECT</span>
+<span class="s2">        *</span>
+<span class="s2">    FROM</span>
+<span class="s2">        border_ahn3_notnull</span>
+<span class="s2">    UNION SELECT</span>
+<span class="s2">        a.*</span>
+<span class="s2">    FROM</span>
+<span class="s2">        </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{border_ahn2}</span><span class="s2"> a,</span>
+<span class="s2">        border_ahn2_id b</span>
+<span class="s2">    WHERE</span>
+<span class="s2">        a.identificatie = ANY(b.identificatie)</span>
+<span class="s2">    ;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">),</span>
+        <span class="n">border_ahn3</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">border_ahn3</span><span class="p">),</span>
+        <span class="n">border_ahn2</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">border_ahn2</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="create_bag3d_table"><a class="viewcode-back" href="../bag3d.html#bag3d.importer.create_bag3d_table">[docs]</a><span class="k">def</span> <span class="nf">create_bag3d_table</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unite the border tiles with the rest</span>
+<span class="sd">    </span>
+<span class="sd">    Note</span>
+<span class="sd">    -----</span>
+<span class="sd">    Persists and indexes the table &#39;bag3d&#39; by uniting the border tiles with the </span>
+<span class="sd">    rest. </span>
+<span class="sd">    Drops the table &#39;bag3d&#39; if exists before the operation.</span>
+<span class="sd">    Drops the view &#39;bag3d_border_union&#39;.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    schema : str</span>
+<span class="sd">        Value from output:schema</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the new table</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    BaseException</span>
+<span class="sd">        If cannot create the table</span>
+<span class="sd">    psycopg2.IntegrityError</span>
+<span class="sd">        If the &#39;gid&#39; field cannot be made PRIMARY KEY due to duplicate records</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Creates a table in database</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">drop_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> CASCADE;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">))</span>
+    
+    <span class="n">query_t</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> AS</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d_rest}</span><span class="s2"></span>
+<span class="s2">    WHERE ahn_version IS NOT NULL</span>
+<span class="s2">    UNION</span>
+<span class="s2">    SELECT *</span>
+<span class="s2">    FROM </span><span class="si">{schema}</span><span class="s2">.bag3d_border_union</span>
+<span class="s2">    WHERE ahn_version IS NOT NULL;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">),</span> 
+                <span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">bag3d_rest</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;_rest&quot;</span><span class="p">))</span>
+    
+    <span class="n">idx_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_geom_idx&quot;</span>
+    <span class="n">query_i</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx_name}</span><span class="s2"> ON </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> USING gist (geovlak);</span>
+<span class="s2">    ALTER TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> ADD PRIMARY KEY (gid);</span>
+<span class="s2">    COMMENT ON TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> IS &#39;The 3D BAG&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">),</span>
+                <span class="n">bag3d</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">idx_name</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">idx_name</span><span class="p">))</span>
+
+    <span class="n">query_d</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    DROP VIEW </span><span class="si">{schema}</span><span class="s2">.bag3d_border_union;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">schema</span><span class="p">))</span>
+    
+    <span class="c1"># TODO: drop *border* tables</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">drop_q</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">drop_q</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_t</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_t</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_i</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_i</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query_d</span><span class="p">))</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query_d</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;There are overlapping footprints in the border and non-border tiles, possibly because some tiles were processed in a batch where they do not belong.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

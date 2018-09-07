@@ -1,0 +1,430 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.app &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.app</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.app</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Handles the whole flow of updating AHN files and BAG, and generating the 3D BAG&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">csv</span> <span class="k">import</span> <span class="n">DictWriter</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">logging.config</span>
+
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">args</span>
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">db</span>
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">footprints</span>
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">border</span>
+<span class="kn">from</span> <span class="nn">bag3d.config</span> <span class="k">import</span> <span class="n">batch3dfier</span>
+<span class="kn">from</span> <span class="nn">bag3d.update</span> <span class="k">import</span> <span class="n">bag</span>
+<span class="kn">from</span> <span class="nn">bag3d.update</span> <span class="k">import</span> <span class="n">ahn</span>
+<span class="kn">from</span> <span class="nn">bag3d.batch3dfier</span> <span class="k">import</span> <span class="n">process</span>
+<span class="kn">from</span> <span class="nn">bag3d</span> <span class="k">import</span> <span class="n">importer</span>
+<span class="kn">from</span> <span class="nn">bag3d</span> <span class="k">import</span> <span class="n">exporter</span>
+<span class="kn">from</span> <span class="nn">bag3d</span> <span class="k">import</span> <span class="n">quality</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pformat</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">)</span>
+<span class="n">logger_quality</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;quality&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="app"><a class="viewcode-back" href="../bag3d.html#bag3d.app.app">[docs]</a><span class="k">def</span> <span class="nf">app</span><span class="p">(</span><span class="n">cli_args</span><span class="p">,</span> <span class="n">here</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The command line application</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cli_args : list of strings</span>
+<span class="sd">        Command line arguments</span>
+<span class="sd">    here : string</span>
+<span class="sd">        Path to the source code directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">here</span><span class="p">,</span> <span class="s1">&#39;bag3d_cfg_schema.yml&#39;</span><span class="p">)</span>
+    <span class="n">args_in</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">parse_console_args</span><span class="p">(</span><span class="n">cli_args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">parse_config</span><span class="p">(</span><span class="n">args_in</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t parse configuration file&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">pformat</span><span class="p">(</span><span class="n">cfg</span><span class="p">))</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">db</span><span class="p">(</span>
+            <span class="n">dbname</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;dbname&quot;</span><span class="p">],</span>
+            <span class="n">host</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">]),</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">]),</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">],</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;pw&quot;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># well, let&#39;s assume the user provided the AHN3 dir first</span>
+        <span class="n">ahn3_fp</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_name&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ahn2_fp</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_name&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ahn3_dir</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_dir&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ahn2_dir</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;input_elevation&quot;</span><span class="p">][</span><span class="s2">&quot;dataset_dir&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;update_bag&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating BAG database&quot;</span><span class="p">)</span>
+            <span class="c1"># At this point an empty database should exists, restore_BAG </span>
+            <span class="c1"># takes care of the rest</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">restore_BAG</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">],</span> <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+    
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;update_ahn&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating AHN files&quot;</span><span class="p">)</span>
+
+            <span class="n">ahn</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">ahn3_dir</span><span class="o">=</span><span class="n">ahn3_dir</span><span class="p">,</span> 
+                         <span class="n">ahn2_dir</span><span class="o">=</span><span class="n">ahn2_dir</span><span class="p">,</span> 
+                         <span class="n">tile_index_file</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">][</span><span class="s2">&quot;file&quot;</span><span class="p">],</span>
+                         <span class="n">ahn3_file_pat</span><span class="o">=</span><span class="n">ahn3_fp</span><span class="p">,</span>
+                         <span class="n">ahn2_file_pat</span><span class="o">=</span><span class="n">ahn2_fp</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;update_ahn_raster&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating AHN 0.5m raster files&quot;</span><span class="p">)</span>
+            <span class="n">ahn</span><span class="o">.</span><span class="n">download_raster</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> 
+                                <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn2_rast_dir&quot;</span><span class="p">],</span> 
+                                <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn3_rast_dir&quot;</span><span class="p">],</span> 
+                                <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+    
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;import_tile_idx&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Importing BAG tile index&quot;</span><span class="p">)</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">import_index</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;file&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;dbname&quot;</span><span class="p">],</span> 
+                             <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">]),</span> 
+                             <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">]),</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">],</span> 
+                             <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+            <span class="c1"># Update BAG tiles to include the lower/left boundary</span>
+            <span class="n">footprints</span><span class="o">.</span><span class="n">update_tile_index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span>
+                                         <span class="n">table_index</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> 
+                                                      <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;table&quot;</span><span class="p">]],</span>
+                                         <span class="n">fields_index</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">],</span> 
+                                                       <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;geometry&quot;</span><span class="p">],</span> 
+                                                       <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;unit_name&quot;</span><span class="p">]]</span>
+                                         <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Partitioning the BAG&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating centroids&quot;</span><span class="p">)</span>
+            <span class="n">footprints</span><span class="o">.</span><span class="n">create_centroids</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span>
+                                        <span class="n">table_centroid</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> 
+                                                        <span class="s2">&quot;pand_centroid&quot;</span><span class="p">],</span>
+                                        <span class="n">table_footprint</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> 
+                                                         <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;table&quot;</span><span class="p">]],</span>
+                                        <span class="n">fields_footprint</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">],</span> 
+                                                          <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+                                        <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating tiles&quot;</span><span class="p">)</span>
+            <span class="n">footprints</span><span class="o">.</span><span class="n">create_views</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_schema&#39;</span><span class="p">],</span> 
+                                     <span class="n">table_index</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> 
+                                                  <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;table&quot;</span><span class="p">]],</span>
+                                     <span class="n">fields_index</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">],</span> 
+                                                   <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;geometry&quot;</span><span class="p">],</span> 
+                                                   <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;unit_name&quot;</span><span class="p">]],</span>
+                                     <span class="n">table_centroid</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> <span class="s2">&quot;pand_centroid&quot;</span><span class="p">],</span>
+                                     <span class="n">fields_centroid</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">],</span> 
+                                                      <span class="s2">&quot;geom&quot;</span><span class="p">],</span>
+                                     <span class="n">table_footprint</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> 
+                                                      <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;table&quot;</span><span class="p">]],</span>
+                                     <span class="n">fields_footprint</span><span class="o">=</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">],</span> 
+                                                       <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;geometry&quot;</span><span class="p">],</span>
+                                                       <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">][</span><span class="s2">&quot;uniqueid&quot;</span><span class="p">]</span>
+                                                       <span class="p">],</span>
+                                     <span class="n">prefix_tiles</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;prefix_tile_footprint&#39;</span><span class="p">])</span>
+            
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Importing AHN tile index&quot;</span><span class="p">)</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">import_index</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s2">&quot;file&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;dbname&quot;</span><span class="p">],</span> 
+                             <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;elevation&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">]),</span> 
+                             <span class="nb">str</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">]),</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">],</span> 
+                             <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+            
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;add_borders&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuring AHN2-3 border tiles&quot;</span><span class="p">)</span>
+            <span class="n">border</span><span class="o">.</span><span class="n">create_border_table</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> 
+                                       <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+            <span class="n">border</span><span class="o">.</span><span class="n">update_file_date</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">ahn2_dir</span><span class="p">,</span> <span class="n">ahn2_fp</span><span class="p">,</span> 
+                                    <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+    
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;run_3dfier&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuring batch3dfier&quot;</span><span class="p">)</span>
+            <span class="n">clip_prefix</span> <span class="o">=</span> <span class="s2">&quot;_clip3dfy_&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;clip_prefix is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">)</span>
+            <span class="n">cfg_out</span> <span class="o">=</span> <span class="n">batch3dfier</span><span class="o">.</span><span class="n">configure_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">clip_prefix</span><span class="p">)</span>
+            <span class="n">cfg_rest</span><span class="p">,</span> <span class="n">cfg_ahn2</span><span class="p">,</span> <span class="n">cfg_ahn3</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg_out</span><span class="p">,</span> <span class="n">ahn3_dir</span><span class="p">,</span> 
+                                                          <span class="n">ahn2_dir</span><span class="p">,</span> 
+                                                          <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="n">cfg_rest</span><span class="p">,</span> <span class="n">cfg_ahn2</span><span class="p">,</span> <span class="n">cfg_ahn3</span><span class="p">]:</span>
+<span class="c1">#                 cfg_out = batch3dfier.configure_tiles(conn, c, clip_prefix)</span>
+<span class="c1">#                 logger.debug(&quot;%s, %s&quot;, c, pformat(cfg_out))</span>
+                <span class="c1">#logger.debug(&quot;%s, %s&quot;, (c, pformat(cfg_out)))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">]):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">])</span>
+                
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running batch3dfier&quot;</span><span class="p">)</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+<span class="c1">#                 process.run(conn, cfg_out, doexec=False)</span>
+            
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Importing batch3dfier output into database&quot;</span><span class="p">)</span>
+                <span class="n">importer</span><span class="o">.</span><span class="n">import_csv</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Joining 3D tables&quot;</span><span class="p">)</span>
+            <span class="n">importer</span><span class="o">.</span><span class="n">unite_border_tiles</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> 
+                                        <span class="n">cfg_ahn2</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;bag3d_table&quot;</span><span class="p">],</span> 
+                                        <span class="n">cfg_ahn3</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;bag3d_table&quot;</span><span class="p">])</span>
+            <span class="n">importer</span><span class="o">.</span><span class="n">create_bag3d_table</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                                        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;bag3d_table&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s2">&quot;grant_access&quot;</span><span class="p">]:</span>
+            <span class="n">bag</span><span class="o">.</span><span class="n">grant_access</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">args_in</span><span class="p">[</span><span class="s2">&quot;grant_access&quot;</span><span class="p">],</span> 
+                             <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tile_schema&#39;</span><span class="p">],</span> 
+                             <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;polygons&#39;</span><span class="p">][</span><span class="s2">&quot;schema&quot;</span><span class="p">])</span>
+    
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;export&#39;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting 3D BAG&quot;</span><span class="p">)</span>
+            <span class="n">exporter</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">])</span>
+            <span class="n">exporter</span><span class="o">.</span><span class="n">gpkg</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+            <span class="n">exporter</span><span class="o">.</span><span class="n">postgis</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">],</span> <span class="n">args_in</span><span class="p">[</span><span class="s1">&#39;no_exec&#39;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="n">args_in</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">]:</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking 3D BAG quality&quot;</span><span class="p">)</span>
+            <span class="n">cfg_quality</span> <span class="o">=</span> <span class="n">quality</span><span class="o">.</span><span class="n">create_quality_views</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+            <span class="n">cnts</span> <span class="o">=</span> <span class="n">quality</span><span class="o">.</span><span class="n">get_counts</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg_quality</span><span class="p">)</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">pformat</span><span class="p">(</span><span class="n">cnts</span><span class="p">))</span>
+            <span class="n">rast_idx</span> <span class="o">=</span> <span class="n">ahn</span><span class="o">.</span><span class="n">rast_file_idx</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> 
+                                         <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn2_rast_dir&quot;</span><span class="p">],</span> 
+                                         <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;ahn3_rast_dir&quot;</span><span class="p">])</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">quality</span><span class="o">.</span><span class="n">get_sample</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cfg_quality</span><span class="p">)</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sample size </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">stats</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;percentile_0.00&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile_0.10&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile_0.25&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;percentile_0.50&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile_0.75&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile_0.90&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;percentile_0.95&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile_0.99&#39;</span><span class="p">]</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="n">quality</span><span class="o">.</span><span class="n">compute_stats</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">rast_idx</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
+            <span class="n">diffs</span><span class="p">,</span><span class="n">fields</span> <span class="o">=</span> <span class="n">quality</span><span class="o">.</span><span class="n">compute_diffs</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Computed differences on </span><span class="si">%s</span><span class="s2"> buildings&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">))</span>
+            
+            <span class="n">out_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;results&quot;</span><span class="p">])</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing height comparison to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;results&quot;</span><span class="p">])</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">][</span><span class="s2">&quot;results&quot;</span><span class="p">],</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+                <span class="n">writer</span> <span class="o">=</span> <span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">:</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            
+            <span class="n">r</span> <span class="o">=</span> <span class="n">quality</span><span class="o">.</span><span class="n">compute_rmse</span><span class="p">(</span><span class="n">diffs</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
+            <span class="n">logger_quality</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;RMSE across the whole sample </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">pformat</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

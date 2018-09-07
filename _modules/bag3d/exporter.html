@@ -1,0 +1,366 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bag3d.exporter &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html">3D BAG quality expectations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../software.html">The bag3d application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bag3d.exporter</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bag3d.exporter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Export the 3D BAG into files&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="k">import</span> <span class="n">sql</span>
+
+<span class="kn">from</span> <span class="nn">bag3d.update</span> <span class="k">import</span> <span class="n">bag</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;export&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="csv"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.csv">[docs]</a><span class="k">def</span> <span class="nf">csv</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export the 3DBAG table into a CSV file</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        Configuration</span>
+<span class="sd">    out_dir : str</span>
+<span class="sd">        Path to the output directory. The directory &#39;csv&#39; will be created if </span>
+<span class="sd">        doesn&#39;t exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bag3d_table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">])</span>
+    
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;COPY (</span>
+<span class="s2">    SELECT</span>
+<span class="s2">        gid,</span>
+<span class="s2">        identificatie,</span>
+<span class="s2">        aanduidingrecordinactief,</span>
+<span class="s2">        aanduidingrecordcorrectie,</span>
+<span class="s2">        officieel,</span>
+<span class="s2">        inonderzoek,</span>
+<span class="s2">        documentnummer,</span>
+<span class="s2">        documentdatum,</span>
+<span class="s2">        pandstatus,</span>
+<span class="s2">        bouwjaar,</span>
+<span class="s2">        begindatumtijdvakgeldigheid,</span>
+<span class="s2">        einddatumtijdvakgeldigheid,</span>
+<span class="s2">        &quot;ground-0.00&quot;,</span>
+<span class="s2">        &quot;ground-0.10&quot;,</span>
+<span class="s2">        &quot;ground-0.20&quot;,</span>
+<span class="s2">        &quot;ground-0.30&quot;,</span>
+<span class="s2">        &quot;ground-0.40&quot;,</span>
+<span class="s2">        &quot;ground-0.50&quot;,</span>
+<span class="s2">        &quot;roof-0.00&quot;,</span>
+<span class="s2">        &quot;roof-0.10&quot;,</span>
+<span class="s2">        &quot;roof-0.25&quot;,</span>
+<span class="s2">        &quot;roof-0.50&quot;,</span>
+<span class="s2">        &quot;roof-0.75&quot;,</span>
+<span class="s2">        &quot;roof-0.90&quot;,</span>
+<span class="s2">        &quot;roof-0.95&quot;,</span>
+<span class="s2">        &quot;roof-0.99&quot;,</span>
+<span class="s2">        ahn_file_date,</span>
+<span class="s2">        ahn_version</span>
+<span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2">)</span>
+<span class="s2">    TO STDOUT</span>
+<span class="s2">    WITH (FORMAT &#39;csv&#39;, HEADER TRUE, ENCODING &#39;utf-8&#39;)</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">print_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    
+    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="s2">&quot;bag3d_</span><span class="si">{d}</span><span class="s2">.csv&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">csv_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_out</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c_out</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">copy_expert</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">c_out</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gpkg"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.gpkg">[docs]</a><span class="k">def</span> <span class="nf">gpkg</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export into GeoPackage</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        Configuration</span>
+<span class="sd">    out_dir : str</span>
+<span class="sd">        Path to the output directory. The directory &#39;csv&#39; will be created if </span>
+<span class="sd">        doesn&#39;t exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bag3d</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="s2">&quot;bag3d_</span><span class="si">{d}</span><span class="s2">.gpkg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;gpkg&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+        <span class="n">dns</span> <span class="o">=</span> <span class="s2">&quot;PG:&#39;dbname=</span><span class="si">{db}</span><span class="s2"> host=</span><span class="si">{h}</span><span class="s2"> user=</span><span class="si">{u}</span><span class="s2"> password=</span><span class="si">{pw}</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">        schemas=bagactueel tables=</span><span class="si">{bag3d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
+                                                 <span class="n">h</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                                                 <span class="n">pw</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+                                                 <span class="n">u</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                                                 <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dns</span> <span class="o">=</span> <span class="s2">&quot;PG:&#39;dbname=</span><span class="si">{db}</span><span class="s2"> host=</span><span class="si">{h}</span><span class="s2"> user=</span><span class="si">{u}</span><span class="s2"> schemas=bagactueel </span><span class="se">\</span>
+<span class="s2">        tables=</span><span class="si">{bag3d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> 
+                                <span class="n">pw</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ogr2ogr&quot;</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;GPKG&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">dns</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting GPKG&quot;</span><span class="p">)</span>
+    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="postgis"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.postgis">[docs]</a><span class="k">def</span> <span class="nf">postgis</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export as PostgreSQL backup file</span>
+<span class="sd">    </span>
+<span class="sd">    For example the backup can be restored as:</span>
+<span class="sd">    </span>
+<span class="sd">    .. code-block:: sh</span>
+<span class="sd">    </span>
+<span class="sd">        createdb &lt;db&gt;</span>
+<span class="sd">        psql -d &lt;db&gt; -c &#39;create extension postgis;&#39;</span>
+<span class="sd">        pg_restore --no-owner --no-privileges -h &lt;host&gt; -U &lt;user&gt; -d &lt;db&gt; -w bagactueel_schema.backup</span>
+<span class="sd">        pg_restore --no-owner --no-privileges -j 2 --clean -h &lt;host&gt; -U &lt;user&gt; -d &lt;db&gt; -w &lt;bag3d backup&gt;.backup</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    conn : :py:class:`bag3d.config.db.db`</span>
+<span class="sd">        Open connection</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        Configuration</span>
+<span class="sd">    out_dir : str</span>
+<span class="sd">        Path to the output directory. The directory &#39;csv&#39; will be created if </span>
+<span class="sd">        doesn&#39;t exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bag3d</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span>
+    
+    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    
+    <span class="n">postgis_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;postgis&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">postgis_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># PostGIS schema (required because of the pandstatus custom data type)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">postgis_dir</span><span class="p">,</span><span class="s2">&quot;bagactueel_schema.backup&quot;</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pg_dump&quot;</span><span class="p">,</span> <span class="s2">&quot;--host&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+               <span class="s2">&quot;--username&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="s2">&quot;--no-password&quot;</span><span class="p">,</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> 
+               <span class="s2">&quot;custom&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-owner&quot;</span><span class="p">,</span> <span class="s2">&quot;--compress&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">,</span> <span class="s2">&quot;--encoding&quot;</span><span class="p">,</span> 
+               <span class="s2">&quot;UTF8&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;--schema-only&quot;</span><span class="p">,</span> <span class="s2">&quot;--schema&quot;</span><span class="p">,</span> <span class="s2">&quot;bagactueel&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;--file&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">]</span>
+    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+    
+    <span class="c1"># The 3D BAG (building heights + footprint geom)s</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">postgis_dir</span><span class="p">,</span> <span class="s2">&quot;bag3d_</span><span class="si">{d}</span><span class="s2">.backup&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">date</span><span class="p">))</span>
+    <span class="n">tbl</span> <span class="o">=</span> <span class="s2">&quot;bagactueel.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">bag3d</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pg_dump&quot;</span><span class="p">,</span> <span class="s2">&quot;--host&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+               <span class="s2">&quot;--username&quot;</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="s2">&quot;--no-password&quot;</span><span class="p">,</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> 
+               <span class="s2">&quot;custom&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-owner&quot;</span><span class="p">,</span> <span class="s2">&quot;--compress&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">,</span> <span class="s2">&quot;--encoding&quot;</span><span class="p">,</span> 
+               <span class="s2">&quot;UTF8&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;--file&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="s2">&quot;--table&quot;</span><span class="p">,</span> <span class="n">tbl</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting PostGIS backup&quot;</span><span class="p">)</span>
+    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
