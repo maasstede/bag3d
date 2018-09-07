@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="3D BAG quality expectations" href="quality.html" /> 
+    <link rel="next" title="Download the data" href="download.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,6 +83,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality.html">3D BAG quality expectations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality.html#d-bag-quality-testing">3D BAG quality testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
@@ -153,6 +154,7 @@
   <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality.html">3D BAG quality expectations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quality.html#completeness">Completeness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quality.html#correctness">Correctness</a></li>
@@ -177,18 +179,11 @@
 <p class="first admonition-title">Warning</p>
 <p class="last">This documentation is still under construction!</p>
 </div>
-<div class="section" id="access-the-data">
-<h2>Access the data<a class="headerlink" href="#access-the-data" title="Permalink to this headline">¶</a></h2>
-<p><strong>WFS:</strong> LINK</p>
-<p><strong>CSV:</strong> <a class="reference external" href="http://godzilla.bk.tudelft.nl/data/3dbag/csv/">http://godzilla.bk.tudelft.nl/data/3dbag/csv/</a></p>
-<p><strong>GPKG:</strong> <a class="reference external" href="http://godzilla.bk.tudelft.nl/data/3dbag/gpkg/">http://godzilla.bk.tudelft.nl/data/3dbag/gpkg/</a></p>
-<p><strong>PostgreSQL backup:</strong> <a class="reference external" href="http://godzilla.bk.tudelft.nl/data/3dbag/postgis/">http://godzilla.bk.tudelft.nl/data/3dbag/postgis/</a></p>
 <p>This is the documentation of the <strong>3D BAG</strong> data set, as well as the <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> software that is used for generating the data. The 3D BAG is an enhanced version of the Dutch <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> data set, with added height information. The 3D BAG lives in a PostgreSQL database and it follows the updates of the BAG.</p>
 <p>The <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> is the most detailed, openly available data set on buildings and addresses in the Netherlands. It contains information about each address in a building, such as its current use, construction date or registration status. The polygons in the BAG represent the footprint of the building as the projection of the roof’s outline. The data set is regularly updated as new buildings are registered, built or demolished. The project <a class="reference external" href="http://www.nlextract.nl/">NLExtract</a> prepares a monthly PostgreSQL backup of the BAG, which is then used as basis for the 3D BAG.</p>
 <p>The <a class="reference external" href="http://www.ahn.nl">Actueel Hoogtebestand Nederland (AHN)</a> is the openly available elevation model of the Netherlands obtained by aerial laser scanning. It is accessible in raster and raw point cloud (LAZ) format. The current is the third version which does not cover the whole country yet, therefore it needs to be extended with the previous version to obtain full coverage. The for disseminating the AHN efficiently, the Netherlands split into 1377 tiles.</p>
 <p>The engine behind <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is <a class="reference external" href="https://github.com/tudelft3d/3dfier">3dfier</a> which takes 2D GIS data sets (e.g BAG) and <em>3dfies</em> them by lifting each polygon to a height obtained from a point cloud (e.g. AHN), thus generating LoD1 models (block models). Although for LoD1 building models the top surface (or roof) is set to a uniform height per building, one of the strengths of 3dfier is the possibility to set the height of the top surface at the desired height relative to the points representing the building.</p>
 <p>The last piece is <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> which is used for storing the BAG, the <em>tile indices</em> and finally storing and serving the 3D BAG. The AHN files are stored in the local file system.</p>
-</div>
 <div class="section" id="the-tiling-process">
 <h2>The tiling process<a class="headerlink" href="#the-tiling-process" title="Permalink to this headline">¶</a></h2>
 <p>In order to be able to 3dfy any size of data set, the input is processed parallel, tile by tile. Therefore the bottleneck becomes the size of a single tile. Both footprint and point cloud tiles need to be <em>small</em> enough, so that <code class="docutils literal notranslate"><span class="pre">3dfier</span></code> can process them on your machine. Therefore a central element for <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is the <strong>tile index</strong>.</p>
@@ -237,7 +232,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="quality.html" class="btn btn-neutral float-right" title="3D BAG quality expectations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="download.html" class="btn btn-neutral float-right" title="Download the data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
