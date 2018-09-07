@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>3D BAG quality expectations &mdash; bag3d  documentation</title>
+  <title>Quality of the 3D BAG &mdash; bag3d  documentation</title>
   
 
   
@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="The bag3d application" href="software.html" />
-    <link rel="prev" title="3D BAG" href="index.html" /> 
+    <link rel="prev" title="Download the data" href="download.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -84,16 +84,20 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">3D BAG quality expectations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#completeness">Completeness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#correctness">Correctness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#consistency">Consistency</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#coherence">Coherence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#accountability">Accountability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quality of the 3D BAG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#d-bag-quality-expectations">3D BAG quality expectations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#completeness">Completeness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#correctness">Correctness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#consistency">Consistency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coherence">Coherence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accountability">Accountability</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#d-bag-quality-testing">3D BAG quality testing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#comparison-with-the-ahn-0-5m-raster">Comparison with the AHN 0.5m raster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-bag-quality-testing">3D BAG quality testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#comparison-with-the-ahn-0-5m-raster">Comparison with the AHN 0.5m raster</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
@@ -142,7 +146,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>3D BAG quality expectations</li>
+      <li>Quality of the 3D BAG</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -161,11 +165,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="d-bag-quality-expectations">
-<h1>3D BAG quality expectations<a class="headerlink" href="#d-bag-quality-expectations" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="quality-of-the-3d-bag">
+<h1>Quality of the 3D BAG<a class="headerlink" href="#quality-of-the-3d-bag" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="d-bag-quality-expectations">
+<h2>3D BAG quality expectations<a class="headerlink" href="#d-bag-quality-expectations" title="Permalink to this headline">¶</a></h2>
 <p>These quality expectations describe the 3D-part of the 3D BAG. The quality of the BAG itself is not discussed here.</p>
 <div class="section" id="completeness">
-<h2>Completeness<a class="headerlink" href="#completeness" title="Permalink to this headline">¶</a></h2>
+<h3>Completeness<a class="headerlink" href="#completeness" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Every BAG building footprint polygon should have a height assigned to it wherever AHN has data.</li>
 <li>The date of AHN (height information) is assigned to every footprint. This includes the AHN version.</li>
@@ -173,20 +179,20 @@
 </ul>
 </div>
 <div class="section" id="correctness">
-<h2>Correctness<a class="headerlink" href="#correctness" title="Permalink to this headline">¶</a></h2>
+<h3>Correctness<a class="headerlink" href="#correctness" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Which part of the roof does <cite>roof-0.00</cite>, <cite>roof-0.50</cite> and <cite>roof-0.99</cite> relate to in the real building?</li>
 <li>The newest avialable AHN is used for every footprint.</li>
 </ul>
 </div>
 <div class="section" id="consistency">
-<h2>Consistency<a class="headerlink" href="#consistency" title="Permalink to this headline">¶</a></h2>
+<h3>Consistency<a class="headerlink" href="#consistency" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="coherence">
-<h2>Coherence<a class="headerlink" href="#coherence" title="Permalink to this headline">¶</a></h2>
+<h3>Coherence<a class="headerlink" href="#coherence" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="accountability">
-<h2>Accountability<a class="headerlink" href="#accountability" title="Permalink to this headline">¶</a></h2>
+<h3>Accountability<a class="headerlink" href="#accountability" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>The source of BAG and AHN is clearly stated.</li>
 <li>Logging into the <cite>bagactueel.bag3d_log</cite> table.</li>
@@ -195,7 +201,7 @@
 </div>
 </div>
 <div class="section" id="d-bag-quality-testing">
-<h1>3D BAG quality testing<a class="headerlink" href="#d-bag-quality-testing" title="Permalink to this headline">¶</a></h1>
+<h2>3D BAG quality testing<a class="headerlink" href="#d-bag-quality-testing" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>randomly sample 1-5% of buildings, take the AHN raster, compute the height percentiles and compare those to the 3D BAG</li>
 </ul>
@@ -206,7 +212,7 @@ the computation:</p>
 <li>randomly sample 1-5% buildings that intersect the borders of the tile polygons and perform the same percentile comparison as above</li>
 </ul>
 <div class="section" id="comparison-with-the-ahn-0-5m-raster">
-<h2>Comparison with the AHN 0.5m raster<a class="headerlink" href="#comparison-with-the-ahn-0-5m-raster" title="Permalink to this headline">¶</a></h2>
+<h3>Comparison with the AHN 0.5m raster<a class="headerlink" href="#comparison-with-the-ahn-0-5m-raster" title="Permalink to this headline">¶</a></h3>
 <p>So, use rasterstats library to compute zonal statistics from the AHN raster. In this case a zone is a single building footprint and the statistics are all the roof-height percentiles.</p>
 <ol class="arabic simple" start="0">
 <li>Download the AHN3 0.5m raster and the AHN2 0.5m raster (only for those tiles where AHN3 is not available)</li>
@@ -223,6 +229,7 @@ wget -nc <a class="reference external" href="http://geodata.nationaalgeoregister
 zs = zonal_stats(src, ‘tests/data/slope.tif’)</p>
 </div>
 </div>
+</div>
 
 
            </div>
@@ -235,7 +242,7 @@ zs = zonal_stats(src, ‘tests/data/slope.tif’)</p>
         <a href="software.html" class="btn btn-neutral float-right" title="The bag3d application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="3D BAG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="download.html" class="btn btn-neutral" title="Download the data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
