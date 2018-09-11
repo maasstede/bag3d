@@ -1,5 +1,5 @@
 Comparing the 3D BAG heights to the AHN 0.5m DSM
-*************************************************
+--------------------------------------------------
 
 There are several height values computed for each building. These are
 the values of the ground and roof surface at different heights. For
