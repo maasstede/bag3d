@@ -1,0 +1,6 @@
+The YAML configuration file
+############################
+
+``bag3d`` uses a YAML configuration file, similarly to ``3dfier``.
+
+.. jsonschema:: /home/balazs/Development/bag3d/bag3d/bag3d_cfg_schema.yml

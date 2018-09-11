@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; bag3d  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Download the data" href="download.html" />
+    <link rel="prev" title="Indices and tables" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> bag3d
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-tiling-process">The tiling process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-two-ahn-versions">The two AHN versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lod1-building-models-with-different-heights">LoD1 building models with different heights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-bag-attribute-description">3D BAG Attribute description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-3d-bag-compared-to-similar-data-sets">The 3D BAG compared to similar data sets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bag3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/intro.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This documentation is still under construction!</p>
+</div>
+<p>This is the documentation of the <strong>3D BAG</strong> data set, as well as the <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> software that is used for generating the data. The 3D BAG is an enhanced version of the Dutch <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> data set, with added height information. The 3D BAG is created and maintained by the <a class="reference external" href="https://3d.bk.tudelft.nl/">3D geoinformation research group</a> at the Delft University of Technology.</p>
+<p>The <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> is the most detailed, openly available data set on buildings and addresses in the Netherlands. It contains information about each address in a building, such as its current use, construction date or registration status. The polygons in the BAG represent the footprint of the building as the projection of the roof’s outline. The data set is regularly updated as new buildings are registered, built or demolished. The project <a class="reference external" href="http://www.nlextract.nl/">NLExtract</a> prepares a monthly PostgreSQL backup of the BAG, which is then used as basis for the 3D BAG.</p>
+<p>The <a class="reference external" href="http://www.ahn.nl">Actueel Hoogtebestand Nederland (AHN)</a> is the openly available elevation model of the Netherlands obtained by aerial laser scanning. It is accessible in raster and raw point cloud (LAZ) format. The current is the third version which does not cover the whole country yet, therefore it needs to be extended with the previous version to obtain full coverage. The for disseminating the AHN efficiently, the Netherlands split into 1377 tiles.</p>
+<p>The engine behind <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is <a class="reference external" href="https://github.com/tudelft3d/3dfier">3dfier</a> which takes 2D GIS data sets (e.g BAG) and <em>3dfies</em> them by lifting each polygon to a height obtained from a point cloud (e.g. AHN), thus generating LoD1 models (block models). Although for LoD1 building models the top surface (or roof) is set to a uniform height per building, one of the strengths of 3dfier is the possibility to set the height of the top surface at the desired height relative to the points representing the building.</p>
+<p>The last piece is <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> which is used for storing the BAG, the <em>tile indices</em> and finally storing and serving the 3D BAG. The AHN files are stored in the local file system.</p>
+<div class="section" id="the-tiling-process">
+<h2>The tiling process<a class="headerlink" href="#the-tiling-process" title="Permalink to this headline">¶</a></h2>
+<p>In order to be able to 3dfy any size of data set, the input is processed parallel, tile by tile. Therefore the bottleneck becomes the size of a single tile. Both footprint and point cloud tiles need to be <em>small</em> enough, so that <code class="docutils literal notranslate"><span class="pre">3dfier</span></code> can process them on your machine. Therefore a central element for <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is the <strong>tile index</strong>.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> the term <em>tile</em> refers to a data subset (footprints or point cloud), that falls within the limits of a <em>tile index unit</em>. A footprint belongs to a tile, if its <em>centroid</em> is in the interior of a tile index unit or on the left/lower edge of a tile index unit. Therefore a footprint is guaranteed to belong to only a single tile.</p>
+<p>A <em>tile index</em> is a polygonal tesselation of the BAG or the AHN. A <em>tile index unit</em> is one polygon in the <em>tile index</em> and it usually has an <em>ID</em> (e.g. 1) and a <em>name</em> (e.g. 25gn1) that uniquely identifies it. This concept is used by the <a class="reference external" href="http://www.ahn.nl/binaries/content/assets/ahn-nl/downloads/ahn_units.zip">AHN tile index</a>, which served as an example for development.</p>
+<p>In the 3D BAG, the AHN tile index is used for partitioning the BAG thus the AHN and BAG tiles are equivalent, both in geometry and ID. But matching footprint and point cloud tiles is not a requirement as for each footprint tile the intersecting point cloud tiles are selected. And in case you are wondering how to generate a tile index, the <em>Create grid</em> Processing algorithm in QGIS might be a good starting point.</p>
+</div>
+<div class="section" id="the-two-ahn-versions">
+<h2>The two AHN versions<a class="headerlink" href="#the-two-ahn-versions" title="Permalink to this headline">¶</a></h2>
+<p>The missions for acquiring the AHN2 and AHN3 lasted 2007–2012 and 2014–2019 respectively. Thus AHN3 does not cover the whole Netherlands yet and it is expected to be complete by the end of 2019. Until then, parts of the previous version (AHN2) need to be used for achieving a complete coverage of heights. One of the main arguments against the AHN in general that is deemed to be out dated by design, due to long mission times for acquiring the scans. However, the building stock changes in a relatively slow pace, this pace being faster in metropolitan regions and even slower in remote areas of the country. In fact, our analysis shows that 96.33% of the measured building heights are still valid. This means that the respective point cloud and the age of the building are related.</p>
+</div>
+<div class="section" id="lod1-building-models-with-different-heights">
+<h2>LoD1 building models with different heights<a class="headerlink" href="#lod1-building-models-with-different-heights" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+<img alt="_images/ptiles.jpg" class="align-center" src="_images/ptiles.jpg" />
+</div>
+<div class="section" id="d-bag-attribute-description">
+<h2>3D BAG Attribute description<a class="headerlink" href="#d-bag-attribute-description" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">gid</span></code>: geometry ID, used internally</p>
+<p>from <code class="docutils literal notranslate"><span class="pre">identificatie</span></code> to <code class="docutils literal notranslate"><span class="pre">einddatumtijdvakgeldigheid</span></code>: attributes directly taken from the BAG, for more information see the <a class="reference external" href="https://imbag.github.io/praktijkhandleiding/">BAG documentation</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">geovlak</span></code>: geometry of the footprint</p>
+<p>from <code class="docutils literal notranslate"><span class="pre">ground-00</span></code> to <code class="docutils literal notranslate"><span class="pre">ground-50</span></code>: the height of the ground surface of the building at the given percentile</p>
+<p>from <code class="docutils literal notranslate"><span class="pre">roof-00</span></code> to <code class="docutils literal notranslate"><span class="pre">roof-99</span></code>: the height of the roof surface of the building at the given percentile. For example <code class="docutils literal notranslate"><span class="pre">roof-99</span></code> is the height of the building when the roof surface is set at the 99th percentile of the z-coordinates of the point cloud of the building.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ahn_version</span></code>: the version of the AHN that was used to obtain the height information</p>
+<p><code class="docutils literal notranslate"><span class="pre">ahn_file_date</span></code>: the creation date of the AHN file that was used to obtain the height information</p>
+<p><code class="docutils literal notranslate"><span class="pre">tile_id</span></code>: the ID of the tile where the building belongs to</p>
+</div>
+<div class="section" id="the-3d-bag-compared-to-similar-data-sets">
+<h2>The 3D BAG compared to similar data sets<a class="headerlink" href="#the-3d-bag-compared-to-similar-data-sets" title="Permalink to this headline">¶</a></h2>
+<p>For details on the quality of the 3D BAG, also in comparison with similar data sets, see <a class="reference internal" href="quality.html#quality"><span class="std std-ref">Quality of the 3D BAG</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="download.html" class="btn btn-neutral float-right" title="Download the data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Indices and tables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Balázs Dukai.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

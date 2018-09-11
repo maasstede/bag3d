@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>3D BAG &mdash; bag3d  documentation</title>
+  <title>Indices and tables &mdash; bag3d  documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Download the data" href="download.html" /> 
+    <link rel="next" title="Introduction" href="intro.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,9 +83,11 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
 
             
@@ -131,7 +133,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>3D BAG</li>
+      <li>Indices and tables</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -153,59 +155,27 @@
   <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#the-tiling-process">The tiling process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#the-two-ahn-versions">The two AHN versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#lod1-building-models-with-different-heights">LoD1 building models with different heights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#d-bag-attribute-description">3D BAG Attribute description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#the-3d-bag-compared-to-similar-data-sets">The 3D BAG compared to similar data sets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quality.html#quality-expectations">Quality expectations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quality.html#quality-testing">Quality testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quality.html#comparing-the-3d-bag-heights-to-the-ahn-0-5m-dsm">Comparing the 3D BAG heights to the AHN 0.5m DSM</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="software.html#bag3d">bag3d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">The bag3d application</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_modules/bag3d.html">bag3d package</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
-</div>
-<div class="section" id="d-bag">
-<h1>3D BAG<a class="headerlink" href="#d-bag" title="Permalink to this headline">¶</a></h1>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">This documentation is still under construction!</p>
-</div>
-<p>This is the documentation of the <strong>3D BAG</strong> data set, as well as the <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> software that is used for generating the data. The 3D BAG is an enhanced version of the Dutch <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> data set, with added height information. The 3D BAG lives in a PostgreSQL database and it follows the updates of the BAG.</p>
-<p>The <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> is the most detailed, openly available data set on buildings and addresses in the Netherlands. It contains information about each address in a building, such as its current use, construction date or registration status. The polygons in the BAG represent the footprint of the building as the projection of the roof’s outline. The data set is regularly updated as new buildings are registered, built or demolished. The project <a class="reference external" href="http://www.nlextract.nl/">NLExtract</a> prepares a monthly PostgreSQL backup of the BAG, which is then used as basis for the 3D BAG.</p>
-<p>The <a class="reference external" href="http://www.ahn.nl">Actueel Hoogtebestand Nederland (AHN)</a> is the openly available elevation model of the Netherlands obtained by aerial laser scanning. It is accessible in raster and raw point cloud (LAZ) format. The current is the third version which does not cover the whole country yet, therefore it needs to be extended with the previous version to obtain full coverage. The for disseminating the AHN efficiently, the Netherlands split into 1377 tiles.</p>
-<p>The engine behind <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is <a class="reference external" href="https://github.com/tudelft3d/3dfier">3dfier</a> which takes 2D GIS data sets (e.g BAG) and <em>3dfies</em> them by lifting each polygon to a height obtained from a point cloud (e.g. AHN), thus generating LoD1 models (block models). Although for LoD1 building models the top surface (or roof) is set to a uniform height per building, one of the strengths of 3dfier is the possibility to set the height of the top surface at the desired height relative to the points representing the building.</p>
-<p>The last piece is <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> which is used for storing the BAG, the <em>tile indices</em> and finally storing and serving the 3D BAG. The AHN files are stored in the local file system.</p>
-<div class="section" id="the-tiling-process">
-<h2>The tiling process<a class="headerlink" href="#the-tiling-process" title="Permalink to this headline">¶</a></h2>
-<p>In order to be able to 3dfy any size of data set, the input is processed parallel, tile by tile. Therefore the bottleneck becomes the size of a single tile. Both footprint and point cloud tiles need to be <em>small</em> enough, so that <code class="docutils literal notranslate"><span class="pre">3dfier</span></code> can process them on your machine. Therefore a central element for <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is the <strong>tile index</strong>.</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> the term <em>tile</em> refers to a data subset (footprints or point cloud), that falls within the limits of a <em>tile index unit</em>. A footprint belongs to a tile, if its <em>centroid</em> is in the interior of a tile index unit or on the left/lower edge of a tile index unit. Therefore a footprint is guaranteed to belong to only a single tile.</p>
-<p>A <em>tile index</em> is a polygonal tesselation of the BAG or the AHN. A <em>tile index unit</em> is one polygon in the <em>tile index</em> and it usually has an <em>ID</em> (e.g. 1) and a <em>name</em> (e.g. 25gn1) that uniquely identifies it. This concept is used by the <a class="reference external" href="http://www.ahn.nl/binaries/content/assets/ahn-nl/downloads/ahn_units.zip">AHN tile index</a>, which served as an example for development.</p>
-<p>In the 3D BAG, the AHN tile index is used for partitioning the BAG thus the AHN and BAG tiles are equivalent, both in geometry and ID. But matching footprint and point cloud tiles is not a requirement as for each footprint tile the intersecting point cloud tiles are selected. And in case you are wondering how to generate a tile index, the <em>Create grid</em> Processing algorithm in QGIS might be a good starting point.</p>
-</div>
-<div class="section" id="the-two-ahn-versions">
-<h2>The two AHN versions<a class="headerlink" href="#the-two-ahn-versions" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="attribute-description">
-<h2>Attribute description<a class="headerlink" href="#attribute-description" title="Permalink to this headline">¶</a></h2>
-<p>attributes from the BAG</p>
-<p>building height percentiles</p>
-<p>ahn version</p>
-<p>ahn file date</p>
-<p>tile name</p>
-</div>
-<div class="section" id="the-3d-bag-compared-to-similar-data-sets">
-<h2>The 3D BAG compared to similar data sets<a class="headerlink" href="#the-3d-bag-compared-to-similar-data-sets" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="d-geobouwtehoghte">
-<h3>3D Geobouwtehoghte<a class="headerlink" href="#d-geobouwtehoghte" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="esri-s-3d-bag">
-<h3>Esri’s 3D BAG<a class="headerlink" href="#esri-s-3d-bag" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="ahn-raster-vs-ahn-point-cloud-for-building-heights">
-<h3>AHN raster vs. AHN point cloud for building heights<a class="headerlink" href="#ahn-raster-vs-ahn-point-cloud-for-building-heights" title="Permalink to this headline">¶</a></h3>
-</div>
-</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -224,7 +194,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="download.html" class="btn btn-neutral float-right" title="Download the data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>

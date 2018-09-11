@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Download the data &mdash; bag3d  documentation</title>
+  <title>The YAML configuration file &mdash; bag3d  documentation</title>
   
 
   
@@ -28,8 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quality of the 3D BAG" href="quality.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
+    <link rel="prev" title="The bag3d application" href="software.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -84,10 +83,10 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Download the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The YAML configuration file</a></li>
 </ul>
 
             
@@ -133,13 +132,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Download the data</li>
+      <li>The YAML configuration file</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/download.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/configfile.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -152,21 +151,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="download-the-data">
-<h1>Download the data<a class="headerlink" href="#download-the-data" title="Permalink to this headline">¶</a></h1>
-<p><strong>WFS:</strong> <code class="docutils literal notranslate"><span class="pre">&lt;http://godzilla.bk.tudelft.nl:8090/geoserver/BAG3D/wfs&gt;</span></code></p>
-<p><strong>CSV:</strong> <a class="reference external" href="http://godzilla.bk.tudelft.nl/data/3dbag/csv/">http://godzilla.bk.tudelft.nl/data/3dbag/csv/</a></p>
-<p>The Comma Separated Value file is an export of the 3D BAG attributes only, thus does not contain the geometry of the building footprints.</p>
-<p><strong>GPKG:</strong> <a class="reference external" href="http://godzilla.bk.tudelft.nl/data/3dbag/gpkg/">http://godzilla.bk.tudelft.nl/data/3dbag/gpkg/</a></p>
-<p>The <a class="reference external" href="http://www.geopackage.org/">GeoPackage</a> is an export of the complete 3D BAG (incl. geometry).</p>
-<p><strong>PostgreSQL backup:</strong> <a class="reference external" href="http://godzilla.bk.tudelft.nl/data/3dbag/postgis/">http://godzilla.bk.tudelft.nl/data/3dbag/postgis/</a></p>
-<p>The PostgreSQL backup file is equivalent in content to the GPKG. For example the backup can be restored as:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>createdb &lt;db&gt;
-psql -d &lt;db&gt; -c <span class="s1">&#39;create extension postgis;&#39;</span>
-pg_restore --no-owner --no-privileges -h &lt;host&gt; -U &lt;user&gt; -d &lt;db&gt; -w bagactueel_schema.backup
-pg_restore --no-owner --no-privileges -j <span class="m">2</span> --clean -h &lt;host&gt; -U &lt;user&gt; -d &lt;db&gt; -w &lt;bag3d backup&gt;.backup
-</pre></div>
-</div>
+  <div class="section" id="the-yaml-configuration-file">
+<h1>The YAML configuration file<a class="headerlink" href="#the-yaml-configuration-file" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">bag3d</span></code> uses a YAML configuration file, similarly to <code class="docutils literal notranslate"><span class="pre">3dfier</span></code>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td><em>map</em></td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
@@ -177,10 +175,8 @@ pg_restore --no-owner --no-privileges -j <span class="m">2</span> --clean -h &lt
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="quality.html" class="btn btn-neutral float-right" title="Quality of the 3D BAG" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="intro.html" class="btn btn-neutral" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="software.html" class="btn btn-neutral" title="The bag3d application" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

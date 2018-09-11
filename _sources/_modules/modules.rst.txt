@@ -1,7 +1,6 @@
-bag3d
-=====
+The bag3d application
+#####################
 
 .. toctree::
-   :maxdepth: 4
 
    bag3d

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quality of the 3D BAG &mdash; bag3d  documentation</title>
+  <title>Comparing the 3D BAG heights to the AHN 0.5m DSM &mdash; bag3d  documentation</title>
   
 
   
@@ -27,9 +27,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The bag3d application" href="software.html" />
-    <link rel="prev" title="Download the data" href="download.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,24 +81,14 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quality of the 3D BAG</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#quality-expectations">Quality expectations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#completeness">Completeness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#correctness">Correctness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#accountability">Accountability</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#quality-testing">Quality testing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#d-gebouwhoogte-nl">3D gebouwhoogte NL</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#esri-s-3d-bag">Esri’s 3D BAG</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#comparing-the-3d-bag-heights-to-the-ahn-0-5m-dsm">Comparing the 3D BAG heights to the AHN 0.5m DSM</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configfile.html">The YAML configuration file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a></li>
 <li class="toctree-l1"><a class="reference internal" href="software.html">The bag3d application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configfile.html">The YAML configuration file</a></li>
 </ul>
@@ -148,13 +136,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Quality of the 3D BAG</li>
+      <li>Comparing the 3D BAG heights to the AHN 0.5m DSM</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/quality.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/ahn.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -167,72 +155,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="quality-of-the-3d-bag">
-<span id="quality"></span><h1>Quality of the 3D BAG<a class="headerlink" href="#quality-of-the-3d-bag" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="quality-expectations">
-<h2>Quality expectations<a class="headerlink" href="#quality-expectations" title="Permalink to this headline">¶</a></h2>
-<p>These quality expectations describe the 3D-part of the 3D BAG. The quality of the BAG itself is not discussed here.</p>
-<div class="section" id="completeness">
-<h3>Completeness<a class="headerlink" href="#completeness" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>Every BAG building footprint polygon should have a height assigned to it wherever AHN has data.</li>
-<li>The date of AHN (height information) is assigned to every footprint. This includes the AHN version.</li>
-<li>The binary attribute <cite>flat_roof</cite> is assigned to every footprint with height information.</li>
-</ul>
-</div>
-<div class="section" id="correctness">
-<h3>Correctness<a class="headerlink" href="#correctness" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>Which part of the roof does <cite>roof-0.00</cite>, <cite>roof-0.50</cite> and <cite>roof-0.99</cite> relate to in the real building?</li>
-<li>The newest avialable AHN is used for every footprint.</li>
-</ul>
-</div>
-<div class="section" id="accountability">
-<h3>Accountability<a class="headerlink" href="#accountability" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>The source of BAG and AHN is clearly stated.</li>
-<li>Logging into the <cite>bagactueel.bag3d_log</cite> table.</li>
-<li>Data quality testing summary into the <cite>bagactueel.bag3d_info</cite> table.</li>
-</ul>
-</div>
-</div>
-<div class="section" id="quality-testing">
-<h2>Quality testing<a class="headerlink" href="#quality-testing" title="Permalink to this headline">¶</a></h2>
-<p>The following quality metrics are computed with every update:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="85%" />
-<col width="15%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Total nr. buildings</td>
-<td>9989779</td>
-</tr>
-<tr class="row-even"><td>Buildings with valid height</td>
-<td>96.33%</td>
-</tr>
-<tr class="row-odd"><td>Buildings missing height information for the roof</td>
-<td>0.87%</td>
-</tr>
-<tr class="row-even"><td>Buildings missing height information for the ground</td>
-<td>0.87%</td>
-</tr>
-</tbody>
-</table>
-<p>Additional to the metrics above, it is good to have an estimate on how well does a building model approximate the geometry of its real-world counter part. Therefore we computed the root mean square error (RMSE) of the geometric difference between the point cloud and the 3D building model at each percentile for 470 buildings in two areas of Delft. The <em>geometric difference</em> is represented by the shortest absolute distances <em>from</em> all point in the point cloud <em>to</em> the building model. Only those points are used from the point cloud that contribute to the creation of the 3D model.</p>
-<p>The diagram of the RMSE of geometric difference, grouped by the type of the roof.</p>
-<img alt="_images/rmse.png" class="align-center" src="_images/rmse.png" />
-<div class="section" id="d-gebouwhoogte-nl">
-<h3>3D gebouwhoogte NL<a class="headerlink" href="#d-gebouwhoogte-nl" title="Permalink to this headline">¶</a></h3>
-<p>The <a class="reference external" href="https://www.kadaster.nl/-/3d-gebouwhoogte-nl">3D gebouwhoogte NL</a> data set is probably what is the closest to what the 3D BAG offers. There are two major differences however. First, the 3D BAG is continuously updated along with the BAG while the 3D geobouwhoogte was last updated in 2015 and the heights are based on the AHN2. Second, the 3D geobouwhoogte is generated from a map of 1:10000 scale, thus the geometry of the building footprints are considerably less detailed than those in the BAG.</p>
-</div>
-<div class="section" id="esri-s-3d-bag">
-<h3>Esri’s 3D BAG<a class="headerlink" href="#esri-s-3d-bag" title="Permalink to this headline">¶</a></h3>
-<p>The GIS software company Esri offers open data set which is based on the BAG and AHN too (eg. <a class="reference external" href="https://hub.arcgis.com/items/esrinl-content::bag-3-d-provincies-1">provinces</a>. However, it is not clear whether the height information is still relevant for each building, neither it is stated what the top surface in the model relates to in the real world.</p>
-</div>
-</div>
-<div class="section" id="comparing-the-3d-bag-heights-to-the-ahn-0-5m-dsm">
-<h2>Comparing the 3D BAG heights to the AHN 0.5m DSM<a class="headerlink" href="#comparing-the-3d-bag-heights-to-the-ahn-0-5m-dsm" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="comparing-the-3d-bag-heights-to-the-ahn-0-5m-dsm">
+<h1>Comparing the 3D BAG heights to the AHN 0.5m DSM<a class="headerlink" href="#comparing-the-3d-bag-heights-to-the-ahn-0-5m-dsm" title="Permalink to this headline">¶</a></h1>
 <p>There are several height values computed for each building. These are
 the values of the ground and roof surface at different heights. For
 example:</p>
@@ -349,22 +273,12 @@ etc.</em>, which are the same that the 3D BAG contains.</p>
 <p>Let’s take a closer look at the difference between the building heights obtained from the AHN DSM and the 3D BAG. The plot below shows the median building heights across the whole sample at each of the seven percentiles. We can clearly see that in case of the 3D BAG the median height of the buildings is increasing with the percentiles, which is according to the expectation. However, in case of the AHN raster the heights fall very close to 4 meters across all percentiles. This behavior is mainly due to the relatively coarse resolution of the raster and the sampling method for creating the raster.</p>
 <img alt="_images/q_box3.png" class="align-center" src="_images/q_box3.png" />
 </div>
-</div>
 
 
            </div>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="software.html" class="btn btn-neutral float-right" title="The bag3d application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="download.html" class="btn btn-neutral" title="Download the data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
