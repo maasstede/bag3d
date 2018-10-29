@@ -57,10 +57,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -84,10 +80,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">The bag3d application</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bag3d.html">bag3d package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="bag3d.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="bag3d.batch3dfier.html">bag3d.batch3dfier package</a></li>
@@ -97,10 +90,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bag3d.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bag3d.html#module-bag3d.app">bag3d.app module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bag3d.html#module-bag3d.exporter">bag3d.exporter module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bag3d.html#module-bag3d.importer">bag3d.importer module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bag3d.html#module-bag3d">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -151,7 +140,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="modules.html">The bag3d application</a> &raquo;</li>
+          <li><a href="modules.html">Module documentation</a> &raquo;</li>
         
           <li><a href="bag3d.html">bag3d package</a> &raquo;</li>
         
@@ -491,6 +480,10 @@ Eg. {‘37hn1’: 3, ‘37hz1’: 2}</p>
 <code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">get_2Dtile_views</code><span class="sig-paren">(</span><em>db</em>, <em>schema_tiles</em>, <em>tiles</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#get_2Dtile_views"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.get_2Dtile_views" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get View names of the 2D tiles. It tries to find views in schema_tiles
 that contain the respective tile ID in their name.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It uses wildcard search to subsitute prefixes.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -657,7 +650,7 @@ See <a class="reference external" href="https://github.com/tudelft3d/3dfier/issu
 
 <dl class="function">
 <dt id="bag3d.config.batch3dfier.yamlr">
-<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">yamlr</code><span class="sig-paren">(</span><em>dbname</em>, <em>host</em>, <em>user</em>, <em>pw</em>, <em>schema_tiles</em>, <em>bag_tile</em>, <em>pc_path</em>, <em>uniqueid</em>, <em>ahn_version</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#yamlr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.yamlr" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">bag3d.config.batch3dfier.</code><code class="descname">yamlr</code><span class="sig-paren">(</span><em>dbname</em>, <em>host</em>, <em>port</em>, <em>user</em>, <em>pw</em>, <em>schema_tiles</em>, <em>bag_tile</em>, <em>pc_path</em>, <em>uniqueid</em>, <em>ahn_version</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/config/batch3dfier.html#yamlr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.config.batch3dfier.yamlr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the YAML config file for 3dfier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

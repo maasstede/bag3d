@@ -55,10 +55,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -82,10 +78,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
 </ul>
 
@@ -165,6 +158,12 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;export&quot;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="compute_md5"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.compute_md5">[docs]</a><span class="k">def</span> <span class="nf">compute_md5</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the md5sum of a file&quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="n">md5_file</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.md5&quot;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;md5sum&quot;</span><span class="p">,</span> <span class="s2">&quot;--tag&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">md5_file</span><span class="p">)]</span>
+    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span>  <span class="p">)</span></div>
 
 <div class="viewcode-block" id="csv"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.csv">[docs]</a><span class="k">def</span> <span class="nf">csv</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Export the 3DBAG table into a CSV file</span>
@@ -185,16 +184,6 @@
 <span class="s2">    SELECT</span>
 <span class="s2">        gid,</span>
 <span class="s2">        identificatie,</span>
-<span class="s2">        aanduidingrecordinactief,</span>
-<span class="s2">        aanduidingrecordcorrectie,</span>
-<span class="s2">        officieel,</span>
-<span class="s2">        inonderzoek,</span>
-<span class="s2">        documentnummer,</span>
-<span class="s2">        documentdatum,</span>
-<span class="s2">        pandstatus,</span>
-<span class="s2">        bouwjaar,</span>
-<span class="s2">        begindatumtijdvakgeldigheid,</span>
-<span class="s2">        einddatumtijdvakgeldigheid,</span>
 <span class="s2">        &quot;ground-0.00&quot;,</span>
 <span class="s2">        &quot;ground-0.10&quot;,</span>
 <span class="s2">        &quot;ground-0.20&quot;,</span>
@@ -202,15 +191,28 @@
 <span class="s2">        &quot;ground-0.40&quot;,</span>
 <span class="s2">        &quot;ground-0.50&quot;,</span>
 <span class="s2">        &quot;roof-0.00&quot;,</span>
+<span class="s2">        &quot;rmse-0.00&quot;,</span>
 <span class="s2">        &quot;roof-0.10&quot;,</span>
+<span class="s2">        &quot;rmse-0.10&quot;,</span>
 <span class="s2">        &quot;roof-0.25&quot;,</span>
+<span class="s2">        &quot;rmse-0.25&quot;,</span>
 <span class="s2">        &quot;roof-0.50&quot;,</span>
+<span class="s2">        &quot;rmse-0.50&quot;,</span>
 <span class="s2">        &quot;roof-0.75&quot;,</span>
+<span class="s2">        &quot;rmse-0.75&quot;,</span>
 <span class="s2">        &quot;roof-0.90&quot;,</span>
+<span class="s2">        &quot;rmse-0.90&quot;,</span>
 <span class="s2">        &quot;roof-0.95&quot;,</span>
+<span class="s2">        &quot;rmse-0.95&quot;,</span>
 <span class="s2">        &quot;roof-0.99&quot;,</span>
-<span class="s2">        ahn_file_date,</span>
-<span class="s2">        ahn_version</span>
+<span class="s2">        &quot;rmse-0.99&quot;,</span>
+<span class="s2">        roof_flat::int,</span>
+<span class="s2">        nr_ground_pts,</span>
+<span class="s2">        nr_roof_pts,</span>
+<span class="s2">        ahn_file_date::date,</span>
+<span class="s2">        ahn_version,</span>
+<span class="s2">        height_valid::int,</span>
+<span class="s2">        tile_id</span>
 <span class="s2">    FROM bagactueel.</span><span class="si">{bag3d}</span><span class="s2">)</span>
 <span class="s2">    TO STDOUT</span>
 <span class="s2">    WITH (FORMAT &#39;csv&#39;, HEADER TRUE, ENCODING &#39;utf-8&#39;)</span>
@@ -224,7 +226,8 @@
     <span class="n">csv_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_out</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c_out</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">copy_expert</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">c_out</span><span class="p">)</span></div>
+            <span class="n">cur</span><span class="o">.</span><span class="n">copy_expert</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">c_out</span><span class="p">)</span>
+    <span class="n">compute_md5</span><span class="p">(</span><span class="n">csv_out</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="gpkg"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.gpkg">[docs]</a><span class="k">def</span> <span class="nf">gpkg</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -247,19 +250,21 @@
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
-        <span class="n">dns</span> <span class="o">=</span> <span class="s2">&quot;PG:&#39;dbname=</span><span class="si">{db}</span><span class="s2"> host=</span><span class="si">{h}</span><span class="s2"> user=</span><span class="si">{u}</span><span class="s2"> password=</span><span class="si">{pw}</span><span class="s2"> </span><span class="se">\</span>
+        <span class="n">dns</span> <span class="o">=</span> <span class="s2">&quot;PG:&#39;dbname=</span><span class="si">{db}</span><span class="s2"> host=</span><span class="si">{h}</span><span class="s2"> port=</span><span class="si">{p}</span><span class="s2"> user=</span><span class="si">{u}</span><span class="s2"> password=</span><span class="si">{pw}</span><span class="s2"> </span><span class="se">\</span>
 <span class="s2">        schemas=bagactueel tables=</span><span class="si">{bag3d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
                                                  <span class="n">h</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                                                 <span class="n">p</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
                                                  <span class="n">pw</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
                                                  <span class="n">u</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
                                                  <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">dns</span> <span class="o">=</span> <span class="s2">&quot;PG:&#39;dbname=</span><span class="si">{db}</span><span class="s2"> host=</span><span class="si">{h}</span><span class="s2"> user=</span><span class="si">{u}</span><span class="s2"> schemas=bagactueel </span><span class="se">\</span>
-<span class="s2">        tables=</span><span class="si">{bag3d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> 
+        <span class="n">dns</span> <span class="o">=</span> <span class="s2">&quot;PG:&#39;dbname=</span><span class="si">{db}</span><span class="s2"> host=</span><span class="si">{h}</span><span class="s2"> port=</span><span class="si">{p}</span><span class="s2"> user=</span><span class="si">{u}</span><span class="s2"> schemas=bagactueel </span><span class="se">\</span>
+<span class="s2">        tables=</span><span class="si">{bag3d}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
                                 <span class="n">pw</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">conn</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d</span><span class="p">)</span>
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ogr2ogr&quot;</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;GPKG&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">dns</span><span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting GPKG&quot;</span><span class="p">)</span>
-    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+    <span class="n">compute_md5</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="postgis"><a class="viewcode-back" href="../bag3d.html#bag3d.exporter.postgis">[docs]</a><span class="k">def</span> <span class="nf">postgis</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Export as PostgreSQL backup file</span>
@@ -297,6 +302,7 @@
                <span class="s2">&quot;UTF8&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;--schema-only&quot;</span><span class="p">,</span> <span class="s2">&quot;--schema&quot;</span><span class="p">,</span> <span class="s2">&quot;bagactueel&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;--file&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">]</span>
     <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+    <span class="n">compute_md5</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">postgis_dir</span><span class="p">)</span>
     
     <span class="c1"># The 3D BAG (building heights + footprint geom)s</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">postgis_dir</span><span class="p">,</span> <span class="s2">&quot;bag3d_</span><span class="si">{d}</span><span class="s2">.backup&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">date</span><span class="p">))</span>
@@ -306,7 +312,8 @@
                <span class="s2">&quot;custom&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-owner&quot;</span><span class="p">,</span> <span class="s2">&quot;--compress&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">,</span> <span class="s2">&quot;--encoding&quot;</span><span class="p">,</span> 
                <span class="s2">&quot;UTF8&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;--file&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="s2">&quot;--table&quot;</span><span class="p">,</span> <span class="n">tbl</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">dbname</span><span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting PostGIS backup&quot;</span><span class="p">)</span>
-    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span></div>
+    <span class="n">bag</span><span class="o">.</span><span class="n">run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="n">doexec</span><span class="p">)</span>
+    <span class="n">compute_md5</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">postgis_dir</span><span class="p">)</span></div>
 
 </pre></div>
 

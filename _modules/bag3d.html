@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="bag3d.batch3dfier package" href="bag3d.batch3dfier.html" />
-    <link rel="prev" title="The bag3d application" href="modules.html" /> 
+    <link rel="prev" title="Module documentation" href="modules.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -57,10 +57,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -84,10 +80,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">The bag3d application</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">bag3d package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bag3d.batch3dfier.html">bag3d.batch3dfier package</a></li>
@@ -96,11 +89,13 @@
 <li class="toctree-l4"><a class="reference internal" href="bag3d.update.html">bag3d.update package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-bag3d.app">bag3d.app module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-bag3d.exporter">bag3d.exporter module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-bag3d.importer">bag3d.importer module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-bag3d">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-bag3d.app">bag3d.app module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bag3d.exporter">bag3d.exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bag3d.importer">bag3d.importer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bag3d">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -151,7 +146,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="modules.html">The bag3d application</a> &raquo;</li>
+          <li><a href="modules.html">Module documentation</a> &raquo;</li>
         
       <li>bag3d package</li>
     
@@ -210,9 +205,8 @@
 </div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="module-bag3d.app">
-<span id="bag3d-app-module"></span><h2>bag3d.app module<a class="headerlink" href="#module-bag3d.app" title="Permalink to this headline">¶</a></h2>
+<span id="bag3d-app-module"></span><h3>bag3d.app module<a class="headerlink" href="#module-bag3d.app" title="Permalink to this headline">¶</a></h3>
 <p>Handles the whole flow of updating AHN files and BAG, and generating the 3D BAG</p>
 <dl class="function">
 <dt id="bag3d.app.app">
@@ -234,8 +228,14 @@
 
 </div>
 <div class="section" id="module-bag3d.exporter">
-<span id="bag3d-exporter-module"></span><h2>bag3d.exporter module<a class="headerlink" href="#module-bag3d.exporter" title="Permalink to this headline">¶</a></h2>
+<span id="bag3d-exporter-module"></span><h3>bag3d.exporter module<a class="headerlink" href="#module-bag3d.exporter" title="Permalink to this headline">¶</a></h3>
 <p>Export the 3D BAG into files</p>
+<dl class="function">
+<dt id="bag3d.exporter.compute_md5">
+<code class="descclassname">bag3d.exporter.</code><code class="descname">compute_md5</code><span class="sig-paren">(</span><em>file</em>, <em>d</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/exporter.html#compute_md5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.exporter.compute_md5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the md5sum of a file</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="bag3d.exporter.csv">
 <code class="descclassname">bag3d.exporter.</code><code class="descname">csv</code><span class="sig-paren">(</span><em>conn</em>, <em>config</em>, <em>out_dir</em><span class="sig-paren">)</span><a class="reference internal" href="bag3d/exporter.html#csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bag3d.exporter.csv" title="Permalink to this definition">¶</a></dt>
@@ -305,7 +305,7 @@ doesn’t exist.</li>
 
 </div>
 <div class="section" id="module-bag3d.importer">
-<span id="bag3d-importer-module"></span><h2>bag3d.importer module<a class="headerlink" href="#module-bag3d.importer" title="Permalink to this headline">¶</a></h2>
+<span id="bag3d-importer-module"></span><h3>bag3d.importer module<a class="headerlink" href="#module-bag3d.importer" title="Permalink to this headline">¶</a></h3>
 <p>Import batch3dfier output into the database</p>
 <dl class="function">
 <dt id="bag3d.importer.create_bag3d_relations">
@@ -493,7 +493,8 @@ condition on the imported CSV files:</p>
 
 </div>
 <div class="section" id="module-bag3d">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bag3d" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h3>Module contents<a class="headerlink" href="#module-bag3d" title="Permalink to this headline">¶</a></h3>
+</div>
 </div>
 </div>
 
@@ -508,7 +509,7 @@ condition on the imported CSV files:</p>
         <a href="bag3d.batch3dfier.html" class="btn btn-neutral float-right" title="bag3d.batch3dfier package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="modules.html" class="btn btn-neutral" title="The bag3d application" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral" title="Module documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

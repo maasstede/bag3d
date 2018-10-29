@@ -55,10 +55,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -82,10 +78,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Module documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -400,14 +393,19 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="import_index"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.import_index">[docs]</a><span class="k">def</span> <span class="nf">import_index</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">tile_schema</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="import_index"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.bag.import_index">[docs]</a><span class="k">def</span> <span class="nf">import_index</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">tile_schema</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span>
+                 <span class="n">pw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">doexec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import the tile index into the database</span>
 <span class="sd">    </span>
 <span class="sd">    Calls ogr2ogr to import a tile index with EPSG:28992 into the tile_index</span>
 <span class="sd">    schema.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pg_conn</span> <span class="o">=</span> <span class="s1">&#39;PG:&quot;dbname=</span><span class="si">{d}</span><span class="s1"> host=</span><span class="si">{h}</span><span class="s1"> port=</span><span class="si">{p}</span><span class="s1"> user=</span><span class="si">{u}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">d</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pw</span><span class="p">:</span>
+        <span class="n">pg_conn</span> <span class="o">=</span> <span class="s1">&#39;PG:&quot;dbname=</span><span class="si">{d}</span><span class="s1"> host=</span><span class="si">{h}</span><span class="s1"> port=</span><span class="si">{p}</span><span class="s1"> user=</span><span class="si">{u}</span><span class="s1"> password=</span><span class="si">{pw}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="o">=</span><span class="n">pw</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pg_conn</span> <span class="o">=</span> <span class="s1">&#39;PG:&quot;dbname=</span><span class="si">{d}</span><span class="s1"> host=</span><span class="si">{h}</span><span class="s1"> port=</span><span class="si">{p}</span><span class="s1"> user=</span><span class="si">{u}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">d</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
     <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;SCHEMA=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tile_schema</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ogr2ogr&#39;</span><span class="p">,</span> <span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;PostgreSQL&#39;</span><span class="p">,</span> <span class="n">pg_conn</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> 

@@ -55,10 +55,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -82,10 +78,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Module documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -219,18 +212,24 @@
         <span class="n">d</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># append file creation date to AHN index</span>
-        <span class="n">f_date</span> <span class="o">=</span> <span class="n">f_date_pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">day_len</span> <span class="o">=</span> <span class="n">f_date</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">day_len</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="n">f_date</span>
-        <span class="k">elif</span> <span class="n">day_len</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="n">f_date</span>
+        <span class="n">sres</span> <span class="o">=</span> <span class="n">f_date_pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">sres</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sres</span><span class="p">:</span>
+            <span class="n">f_date</span> <span class="o">=</span> <span class="n">f_date_pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">day_len</span> <span class="o">=</span> <span class="n">f_date</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">day_len</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="n">f_date</span>
+            <span class="k">elif</span> <span class="n">day_len</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="n">f_date</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">f_date</span>
+            <span class="c1"># strftime needs zero-padding for day-of-the-year</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span> <span class="s1">&#39;/CET&#39;</span><span class="p">,</span> <span class="s1">&#39;%j/%Y/%Z&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">d</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="n">f_date</span>
-        <span class="c1"># strftime needs zero-padding for day-of-the-year</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span> <span class="o">+</span> <span class="s1">&#39;/CET&#39;</span><span class="p">,</span> <span class="s1">&#39;%j/%Y/%Z&#39;</span><span class="p">)</span>
-        
-    <span class="k">return</span> <span class="n">d</span></div>
+            
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not find the file date in LAS header:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="download"><a class="viewcode-back" href="../../bag3d.update.html#bag3d.update.ahn.download">[docs]</a><span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">ahn3_dir</span><span class="p">,</span> <span class="n">ahn2_dir</span><span class="p">,</span> <span class="n">tile_index_file</span><span class="p">,</span> <span class="n">ahn3_file_pat</span><span class="p">,</span> <span class="n">ahn2_file_pat</span><span class="p">):</span>

@@ -55,10 +55,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -82,10 +78,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contact.html">Contact</a></li>
 </ul>
 
@@ -164,6 +157,8 @@
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
+<span class="kn">from</span> <span class="nn">bag3d.update</span> <span class="k">import</span> <span class="n">bag</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;import&#39;</span><span class="p">)</span>
 
 
@@ -207,13 +202,24 @@
 <span class="s2">        &quot;ground-0.40&quot; real,</span>
 <span class="s2">        &quot;ground-0.50&quot; real,</span>
 <span class="s2">        &quot;roof-0.00&quot; real,</span>
+<span class="s2">        &quot;rmse-0.00&quot; real,</span>
 <span class="s2">        &quot;roof-0.10&quot; real,</span>
+<span class="s2">        &quot;rmse-0.10&quot; real,</span>
 <span class="s2">        &quot;roof-0.25&quot; real,</span>
+<span class="s2">        &quot;rmse-0.25&quot; real,</span>
 <span class="s2">        &quot;roof-0.50&quot; real,</span>
+<span class="s2">        &quot;rmse-0.50&quot; real,</span>
 <span class="s2">        &quot;roof-0.75&quot; real,</span>
+<span class="s2">        &quot;rmse-0.75&quot; real,</span>
 <span class="s2">        &quot;roof-0.90&quot; real,</span>
+<span class="s2">        &quot;rmse-0.90&quot; real,</span>
 <span class="s2">        &quot;roof-0.95&quot; real,</span>
+<span class="s2">        &quot;rmse-0.95&quot; real,</span>
 <span class="s2">        &quot;roof-0.99&quot; real,</span>
+<span class="s2">        &quot;rmse-0.99&quot; real,</span>
+<span class="s2">        roof_flat bool,</span>
+<span class="s2">        nr_ground_pts int,</span>
+<span class="s2">        nr_roof_pts int,</span>
 <span class="s2">        ahn_file_date timestamptz,</span>
 <span class="s2">        ahn_version smallint,</span>
 <span class="s2">        tile_id text</span>
@@ -288,20 +294,22 @@
                 <span class="c1"># be imported with COPY instead of row-wise edit and import</span>
                 <span class="c1"># in python (suuuper slow)</span>
                 <span class="c1"># Watch out for trailing commas from the CSV (until #58 is fixed in 3dfier)</span>
-                <span class="n">cmd_add_ahn</span> <span class="o">=</span> <span class="s2">&quot;gawk -i inplace -F&#39;,&#39; &#39;BEGIN { OFS = </span><span class="se">\&quot;</span><span class="s2">,</span><span class="se">\&quot;</span><span class="s2"> } {$16=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">; print}&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">cmd_add_ahn</span> <span class="o">=</span> <span class="s2">&quot;gawk -i inplace -F&#39;,&#39; &#39;BEGIN { OFS = </span><span class="se">\&quot;</span><span class="s2">,</span><span class="se">\&quot;</span><span class="s2"> } {$27=</span><span class="se">\&quot;</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">; print}&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">ahn_file_date</span><span class="p">,</span> 
                     <span class="n">ahn_version</span><span class="p">,</span>
                     <span class="n">tile</span><span class="p">,</span>
                     <span class="n">path</span><span class="p">)</span>
                 <span class="n">run</span><span class="p">(</span><span class="n">cmd_add_ahn</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">cmd_header</span> <span class="o">=</span> <span class="s2">&quot;sed -i &#39;1s/.*/id,ground-0.00,ground-0.10,ground-0.20,</span><span class="se">\</span>
-<span class="s2">ground-0.30,ground-0.40,ground-0.50,roof-0.00,roof-0.10,</span><span class="se">\</span>
-<span class="s2">roof-0.25,roof-0.50,roof-0.75,roof-0.90,roof-0.95,roof-0.99,</span><span class="se">\</span>
+<span class="s2">ground-0.30,ground-0.40,ground-0.50,roof-0.00,rmse-0.00,roof-0.10,rmse-0.10,</span><span class="se">\</span>
+<span class="s2">roof-0.25,rmse-0.25,roof-0.50,rmse-0.50,roof-0.75,rmse-0.75,roof-0.90,rmse-0.90,</span><span class="se">\</span>
+<span class="s2">roof-0.95,rmse-0.95,roof-0.99,rmse-0.99,roof_flat,nr_ground_pts,nr_roof_pts,</span><span class="se">\</span>
 <span class="s2">ahn_file_date,ahn_version,tile_id/&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span>
                 <span class="n">run</span><span class="p">(</span><span class="n">cmd_header</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
                     <span class="nb">next</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span> <span class="c1"># skip header</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f_in</span><span class="p">)</span>
                     <span class="n">cur</span><span class="o">.</span><span class="n">copy_from</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">tbl</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="s1">&#39;-99.99&#39;</span><span class="p">)</span>
                         
         <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span>
@@ -332,16 +340,19 @@
 <span class="sd">    cfg: dict</span>
 <span class="sd">        batch3dfier YAML config as returned by :meth:`bag3d.config.args.parse_config`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+    <span class="n">schema_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;input_polygons&#39;</span><span class="p">][</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s1">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">bag_table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;input_polygons&#39;</span><span class="p">][</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
+    <span class="n">uniqueid_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;input_polygons&#39;</span><span class="p">][</span><span class="s1">&#39;footprints&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;uniqueid&#39;</span><span class="p">])</span>
     <span class="n">bag3d_table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">])</span>
     <span class="n">heights_table_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;table&#39;</span><span class="p">])</span>
     
-    <span class="n">drop_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> CASCADE;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+    <span class="n">drop_q</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;DROP TABLE IF EXISTS </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> CASCADE;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">drop_q</span><span class="p">)</span>
     
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    CREATE TABLE bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> AS</span>
+<span class="s2">    CREATE TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> AS</span>
 <span class="s2">    SELECT</span>
 <span class="s2">        p.gid,</span>
 <span class="s2">        p.identificatie::bigint,</span>
@@ -351,8 +362,7 @@
 <span class="s2">        p.inonderzoek,</span>
 <span class="s2">        p.documentnummer,</span>
 <span class="s2">        p.documentdatum,</span>
-<span class="s2">        p.pandstatus,</span>
-<span class="s2">        p.bouwjaar,</span>
+<span class="s2">        make_date(p.bouwjaar::int, 1, 1) bouwjaar,</span>
 <span class="s2">        p.begindatumtijdvakgeldigheid,</span>
 <span class="s2">        p.einddatumtijdvakgeldigheid,</span>
 <span class="s2">        p.geovlak,</span>
@@ -363,54 +373,77 @@
 <span class="s2">        h.&quot;ground-0.40&quot;,</span>
 <span class="s2">        h.&quot;ground-0.50&quot;,</span>
 <span class="s2">        h.&quot;roof-0.00&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.00&quot;,</span>
 <span class="s2">        h.&quot;roof-0.10&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.10&quot;,</span>
 <span class="s2">        h.&quot;roof-0.25&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.25&quot;,</span>
 <span class="s2">        h.&quot;roof-0.50&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.50&quot;,</span>
 <span class="s2">        h.&quot;roof-0.75&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.75&quot;,</span>
 <span class="s2">        h.&quot;roof-0.90&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.90&quot;,</span>
 <span class="s2">        h.&quot;roof-0.95&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.95&quot;,</span>
 <span class="s2">        h.&quot;roof-0.99&quot;,</span>
+<span class="s2">        h.&quot;rmse-0.99&quot;,</span>
+<span class="s2">        h.roof_flat,</span>
+<span class="s2">        h.nr_ground_pts,</span>
+<span class="s2">        h.nr_roof_pts,</span>
 <span class="s2">        h.ahn_file_date,</span>
 <span class="s2">        h.ahn_version,</span>
+<span class="s2">        CASE</span>
+<span class="s2">            WHEN make_date(p.bouwjaar::int, 1, 1) &gt; h.ahn_file_date THEN FALSE</span>
+<span class="s2">            WHEN h.nr_roof_pts = 0 THEN FALSE</span>
+<span class="s2">            ELSE TRUE</span>
+<span class="s2">        END AS height_valid,</span>
 <span class="s2">        h.tile_id</span>
-<span class="s2">    FROM bagactueel.pandactueelbestaand p</span>
-<span class="s2">    INNER JOIN bagactueel.</span><span class="si">{heights}</span><span class="s2"> h ON p.identificatie::numeric = h.id;</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span> <span class="n">heights</span><span class="o">=</span><span class="n">heights_table_q</span><span class="p">)</span>
+<span class="s2">    FROM </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag}</span><span class="s2"> p</span>
+<span class="s2">    INNER JOIN </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{heights}</span><span class="s2"> h ON p.</span><span class="si">{uniqueid}</span><span class="s2">::numeric = h.id;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag</span><span class="o">=</span><span class="n">bag_table_q</span><span class="p">,</span> <span class="n">uniqueid</span><span class="o">=</span><span class="n">uniqueid_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span>
+                <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span> <span class="n">heights</span><span class="o">=</span><span class="n">heights_table_q</span><span class="p">)</span>
     <span class="c1"># the type of bagactueel.pand.identificatie can change between different </span>
     <span class="c1"># BAG extracts (numeric or varchar)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     
     <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_identificatie_idx&quot;</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> (identificatie);</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> (</span><span class="si">{uniqueid}</span><span class="s2">);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">,</span><span class="n">uniqueid</span><span class="o">=</span><span class="n">uniqueid_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     
     <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_tile_id_idx&quot;</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> (tile_id);</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> (tile_id);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_valid_idx&quot;</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> (height_valid);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     
     <span class="n">idx</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;bag3d_table&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_geovlak_idx&quot;</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> USING GIST (geovlak);</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+<span class="s2">    CREATE INDEX </span><span class="si">{idx}</span><span class="s2"> ON </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> USING GIST (geovlak);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    SELECT populate_geometry_columns(&#39;bagactueel.</span><span class="si">{bag3d}</span><span class="s2">&#39;::regclass);</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+<span class="s2">    SELECT populate_geometry_columns(&#39;</span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2">&#39;::regclass);</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    COMMENT ON TABLE bagactueel.</span><span class="si">{bag3d}</span><span class="s2"> IS &#39;The 3D BAG&#39;;</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">)</span>
+<span class="s2">    COMMENT ON TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{bag3d}</span><span class="s2"> IS &#39;The 3D BAG&#39;;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bag3d</span><span class="o">=</span><span class="n">bag3d_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    DROP TABLE bagactueel.</span><span class="si">{heights}</span><span class="s2"> CASCADE;</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">heights</span><span class="o">=</span><span class="n">heights_table_q</span><span class="p">)</span>
+<span class="s2">    DROP TABLE </span><span class="si">{schema}</span><span class="s2">.</span><span class="si">{heights}</span><span class="s2"> CASCADE;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">heights</span><span class="o">=</span><span class="n">heights_table_q</span><span class="p">,</span><span class="n">schema</span><span class="o">=</span><span class="n">schema_q</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">sendQuery</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div>
 
 

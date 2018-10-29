@@ -1,4 +1,7 @@
-The bag3d application
 #####################
+The bag3d software
+######################
 
-* :ref:`modindex`
+.. toctree::
+    
+    _modules/bag3d

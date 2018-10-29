@@ -55,10 +55,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -82,10 +78,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Module documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contact.html">Contact</a></li>
 </ul>
 
@@ -223,7 +216,7 @@
         <span class="c1"># uses it</span>
         <span class="n">yml_name</span> <span class="o">=</span> <span class="n">thread</span> <span class="o">+</span> <span class="s2">&quot;_config.yml&quot;</span>
         <span class="n">yml_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">yml_dir</span><span class="p">,</span> <span class="n">yml_name</span><span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">yamlr</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yamlr</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
                        <span class="n">pw</span><span class="o">=</span><span class="n">db</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
                        <span class="n">bag_tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> <span class="n">pc_path</span><span class="o">=</span><span class="n">pc_path</span><span class="p">,</span> <span class="n">uniqueid</span><span class="o">=</span><span class="n">uniqueid</span><span class="p">,</span>
                        <span class="n">ahn_version</span><span class="o">=</span><span class="n">ahn_version</span><span class="p">)</span>
@@ -244,7 +237,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">tile_out</span><span class="p">)</span>
         <span class="c1"># Run 3dfier</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_3dfier</span><span class="p">,</span> <span class="n">yml_path</span><span class="p">,</span> <span class="s2">&quot;--CSV-BUILDINGS-MULTIPLE&quot;</span><span class="p">,</span> 
+        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_3dfier</span><span class="p">,</span> <span class="n">yml_path</span><span class="p">,</span> <span class="s2">&quot;--stat_RMSE&quot;</span><span class="p">,</span> <span class="s2">&quot;--CSV-BUILDINGS-MULTIPLE&quot;</span><span class="p">,</span> 
                    <span class="n">output_path</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
@@ -261,7 +254,7 @@
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;tile_skipped&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out_path&#39;</span><span class="p">:</span> <span class="n">output_path</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="yamlr"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.yamlr">[docs]</a><span class="k">def</span> <span class="nf">yamlr</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span>
+<div class="viewcode-block" id="yamlr"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.yamlr">[docs]</a><span class="k">def</span> <span class="nf">yamlr</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span>
           <span class="n">bag_tile</span><span class="p">,</span> <span class="n">pc_path</span><span class="p">,</span> <span class="n">uniqueid</span><span class="p">,</span> <span class="n">ahn_version</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Parse the YAML config file for 3dfier.</span>
 
@@ -287,17 +280,19 @@
     <span class="c1"># results in &#39;YAML::TypedBadConversion&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt;&#39;</span>
     <span class="c1"># because every line is indented as here</span>
     <span class="k">if</span> <span class="n">pw</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;PG:dbname=</span><span class="si">{dbname}</span><span class="s1"> host=</span><span class="si">{host}</span><span class="s1"> user=</span><span class="si">{user}</span><span class="s1"> password=</span><span class="si">{pw}</span><span class="s1"> schemas=</span><span class="si">{schema_tiles}</span><span class="s1"> tables=</span><span class="si">{bag_tile}</span><span class="s1">&#39;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;PG:dbname=</span><span class="si">{dbname}</span><span class="s1"> host=</span><span class="si">{host}</span><span class="s1"> port=</span><span class="si">{port}</span><span class="s1"> user=</span><span class="si">{user}</span><span class="s1"> password=</span><span class="si">{pw}</span><span class="s1"> schemas=</span><span class="si">{schema_tiles}</span><span class="s1"> tables=</span><span class="si">{bag_tile}</span><span class="s1">&#39;</span>
         <span class="n">dns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span>
                <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+               <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
                <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
                <span class="n">pw</span><span class="o">=</span><span class="n">pw</span><span class="p">,</span>
                <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
                <span class="n">bag_tile</span><span class="o">=</span><span class="n">bag_tile</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;PG:dbname=</span><span class="si">{dbname}</span><span class="s1"> host=</span><span class="si">{host}</span><span class="s1"> user=</span><span class="si">{user}</span><span class="s1"> schemas=</span><span class="si">{schema_tiles}</span><span class="s1"> tables=</span><span class="si">{bag_tile}</span><span class="s1">&#39;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;PG:dbname=</span><span class="si">{dbname}</span><span class="s1"> host=</span><span class="si">{host}</span><span class="s1"> port=</span><span class="si">{port}</span><span class="s1"> user=</span><span class="si">{user}</span><span class="s1"> schemas=</span><span class="si">{schema_tiles}</span><span class="s1"> tables=</span><span class="si">{bag_tile}</span><span class="s1">&#39;</span>
         <span class="n">dns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span>
                <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+               <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
                <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
                <span class="n">schema_tiles</span><span class="o">=</span><span class="n">schema_tiles</span><span class="p">,</span>
                <span class="n">bag_tile</span><span class="o">=</span><span class="n">bag_tile</span><span class="p">)</span>
@@ -331,8 +326,8 @@
 <span class="s2">    thinning: 0</span>
 
 <span class="s2">options:</span>
-<span class="s2">  building_radius_vertex_elevation: 3.0</span>
-<span class="s2">  radius_vertex_elevation: 1.0</span>
+<span class="s2">  building_radius_vertex_elevation: 0.5</span>
+<span class="s2">  radius_vertex_elevation: 0.5</span>
 <span class="s2">  threshold_jump_edges: 0.5</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dns</span><span class="o">=</span><span class="n">dns</span><span class="p">,</span>
                    <span class="n">uniqueid</span><span class="o">=</span><span class="n">uniqueid</span><span class="p">,</span>
@@ -672,6 +667,10 @@
 <div class="viewcode-block" id="get_2Dtile_views"><a class="viewcode-back" href="../../bag3d.config.html#bag3d.config.batch3dfier.get_2Dtile_views">[docs]</a><span class="k">def</span> <span class="nf">get_2Dtile_views</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">schema_tiles</span><span class="p">,</span> <span class="n">tiles</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get View names of the 2D tiles. It tries to find views in schema_tiles</span>
 <span class="sd">    that contain the respective tile ID in their name.</span>
+<span class="sd">    </span>
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    It uses wildcard search to subsitute prefixes.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -688,7 +687,7 @@
 <span class="sd">        Name of the view that contain the tile ID as substring.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Get View names for the tiles</span>
-    <span class="n">tstr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">]</span>
+    <span class="n">tstr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tile</span><span class="p">)</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">]</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">tstr</span><span class="p">)</span>
     <span class="n">schema_tiles</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">Literal</span><span class="p">(</span><span class="n">schema_tiles</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;SELECT table_name</span>

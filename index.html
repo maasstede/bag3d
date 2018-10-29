@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Indices and tables &mdash; bag3d  documentation</title>
+  <title>The bag3d software &mdash; bag3d  documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Module documentation" href="_modules/modules.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -56,10 +56,6 @@
           
             
             
-              <div class="version">
-                0.1.0
-              </div>
-            
           
 
           
@@ -83,10 +79,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">The bag3d application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">Module documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
 
@@ -133,7 +126,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Indices and tables</li>
+      <li>The bag3d software</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,37 +145,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="toctree-wrapper compound">
+  <div class="section" id="the-bag3d-software">
+<h1>The bag3d software<a class="headerlink" href="#the-bag3d-software" title="Permalink to this headline">¶</a></h1>
+<img alt="_images/bag3d.jpg" class="align-center" src="_images/bag3d.jpg" />
+<div class="section" id="bag3d">
+<h2>bag3d<a class="headerlink" href="#bag3d" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.html"><img alt="Licence" src="https://img.shields.io/badge/licence-GPL--3-blue.svg" /></a> <img alt="Python 3.6" src="https://img.shields.io/badge/python-3.6-blue.svg" /> <img alt="PostgreSQL 10" src="https://img.shields.io/badge/PostgreSQL-10-blue.svg" /></p>
+<p><code class="docutils literal notranslate"><span class="pre">bag3d</span></code> is an application for generating a 3D version of the Dutch <a class="reference external" href="https://www.kadaster.nl/wat-is-de-bag">Basisregistraties Adressen en Gebouwen (BAG)</a> data set, by using <a class="reference external" href="https://github.com/tudelft3d/3dfier">3dfier</a> for extruding the building footprints to LoD1 models. It is designed to regularly run as an automated process (eg. with a cron job), hence keeping the 3D BAG in line with the BAG updates. The project started as <a class="reference external" href="https://github.com/balazsdukai/batch3dfier">batch3dfier</a> but it made sense to specialise it as more and more dataset specific features were needed.</p>
+<p>In short the <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> application can:</p>
+<ul class="simple">
+<li>Download and restore a BAG PostgreSQL backup from <a class="reference external" href="http://www.nlextract.nl/">NLExtract</a>.</li>
+<li>Download all the available AHN3 files and the tile index. When new tiles are available, download only those that are not stored locally. Additionally, append the AHN file creation date to each tile in the index.</li>
+<li>Import the tile indexes for BAG and AHN to a PostgreSQL database and partition the BAG building footprints.</li>
+<li>Run several <a class="reference external" href="https://github.com/tudelft3d/3dfier">3dfier</a> jobs in parallel to process the given tiles. Currently the 3dfication output is attached to the 2D polygons as height attributes and the results are stored in the database.</li>
+<li>Export into CSV, GeoPackage or PostgreSQL backup.</li>
+<li>Report various quality metrics.</li>
+</ul>
+<p>Read the complete <code class="docutils literal notranslate"><span class="pre">bag3d</span></code> <a class="reference external" href="https://tudelft3d.github.io/bag3d/">documentation</a></p>
+<p>Read the <a class="reference external" href="http://3dbag.bk.tudelft.nl">3D BAG data set documentation</a></p>
+<div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#the-tiling-process">The tiling process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#the-two-ahn-versions">The two AHN versions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#lod1-building-models-with-different-heights">LoD1 building models with different heights</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#d-bag-attribute-description">3D BAG Attribute description</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#the-3d-bag-compared-to-similar-data-sets">The 3D BAG compared to similar data sets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">Module documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_modules/bag3d.html">bag3d package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_modules/bag3d.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_modules/bag3d.html#submodules">Submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="download.html">Download the data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quality.html">Quality of the 3D BAG</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quality.html#quality-expectations">Quality expectations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quality.html#quality-testing">Quality testing</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="_modules/modules.html">The bag3d application</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="_modules/bag3d.html">bag3d package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
 </div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h3>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
 <li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
 <li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
+</div>
+</div>
 </div>
 
 
@@ -193,7 +196,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="_modules/modules.html" class="btn btn-neutral float-right" title="Module documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
